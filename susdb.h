@@ -30,7 +30,7 @@ namespace sus {
             virtual vector<Article> getArticles(unsigned long newsIdent) = 0;
             virtual void createArticle(unsigned long newsIdent) = 0;
             virtual void deleteArticle(unsigned long artIdent) = 0;
-            virtual void getArticle(unsigned long newsIdent, unsigned long artIdent) = 0;
+            virtual const Article& getArticle(unsigned long newsIdent, unsigned long artIdent) = 0;
     }
 }
 
