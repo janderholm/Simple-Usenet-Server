@@ -24,8 +24,22 @@ InMemoryDatabase::createNewsgroup(string name)
     newsgroups.push_back(n); 
 }
 
+
 void
 InMemoryDatabase::deleteNewsgroup(unsigned long news)
 {
-    
 }
+
+
+const Article&
+InMemoryDatabase::getArticle(unsigned long newsIdent, unsigned long artIdent)
+{
+    vector<Article> articles = getArticles(newsIdent);
+    vector<Article> :: const_iterator itr = articles.begin();
+    for(;itr != articles.end(); ++itr){
+        if(itr->ident == artIdent)
+            return *itr;    
+    }
+    return 0;
+}
+
