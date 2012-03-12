@@ -6,19 +6,22 @@
 #include <vector>
 
 namespace sus {
-    struct Article {
+    struct Article
+    {
         string title;
         string author;
         string body;
         unsigned long ident;
     }
 
-    struct Newsgroup {
+    struct Newsgroup
+    {
         string name;
         unsigned long ident;
     }
 
-    class DatabaseInterface {
+    class DatabaseInterface
+    {
         public:
             // Create newsgroup with 
             virtual vector<Newsgroup> getNewsgroups() = 0;

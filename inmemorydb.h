@@ -4,7 +4,8 @@
 #include "susdb.h"
 #include <vector>
 namespace sus {
-    class MemoryNewsgroup : public Newsgroup {
+    class MemoryNewsgroup : public Newsgroup
+    {
         public: vector<Article> articles;
     }
 
