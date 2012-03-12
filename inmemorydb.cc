@@ -1,3 +1,5 @@
+#include <algorithm>
+
 #include "inmemorydb.h"
 #include "vector"
 
@@ -26,8 +28,11 @@ InMemoryDatabase::createNewsgroup(string name)
 
 
 void
-InMemoryDatabase::deleteNewsgroup(unsigned long news)
+InMemoryDatabase::deleteNewsgroup(unsigned long newsIdent)
 {
+    auto it = find_if(newsgroups.begin(), newsgroups.end(),
+            [&newsIdent](MemoryNewsgroup& n) { return newsIdent == n.ident; });
+    newsgroups.erase(it);
 }
 
 const Article&
