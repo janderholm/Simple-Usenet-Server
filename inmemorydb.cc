@@ -36,10 +36,17 @@ InMemoryDatabase::deleteNewsgroup(unsigned long newsIdent)
 }
 
 void
+InMemoryDatabase::createArticle(unsigned long newsIdent, const Article& article)
+{
+    vector<Article> articles = getArticles(newsIdent);
+    articles.push_back(article);
+}
+
+void
 InMemoryDatabase::deleteArticle(unsigned long newsIdent, unsigned long artIdent)
 {
     vector<Article> articles = getArticles(newsIdent);
-    it = find_if(articles.begin(), articles.end(),
+    auto it = find_if(articles.begin(), articles.end(),
         [&artIdent](Article& a) {return a.ident == artIdent;});
     articles.erase(it);
 }
