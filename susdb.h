@@ -28,8 +28,8 @@ namespace sus {
             virtual void createNewsgroup(string name) = 0;
             virtual void deleteNewsgroup(unsigned long newsIdent) = 0;
             virtual vector<Article> getArticles(unsigned long newsIdent) = 0;
-            virtual void createArticle(unsigned long newsIdent) = 0;
-            virtual void deleteArticle(unsigned long artIdent) = 0;
+            virtual void createArticle(unsigned long newsIdent, const Article& article) = 0;
+            virtual void deleteArticle(unsigned long newsIdent, unsigned long artIdent) = 0;
             virtual const Article& getArticle(unsigned long newsIdent, unsigned long artIdent) = 0;
     }
 }

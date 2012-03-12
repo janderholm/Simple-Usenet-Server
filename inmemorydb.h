@@ -16,8 +16,8 @@ namespace sus {
             void createNewsgroup(string name);
             void deleteNewsgroup(unsigned long newsIdent);
             vector<Article> getArticles(unsigned long newsIdent);
-            void createArticle(unsigned long newsIdent);
-            void deleteArticle(unsigned long artIdent);
+            void createArticle(unsigned long newsIdent, const Article& article);
+            void deleteArticle(unsigned long newsIdent, unsigned long artIdent);
             const Article& getArticle(unsigned long newsIdent, unsigned long artIdent);
         private:
             vector<MemoryNewsgroup> newsgroups;

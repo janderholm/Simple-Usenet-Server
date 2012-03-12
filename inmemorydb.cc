@@ -35,7 +35,6 @@ InMemoryDatabase::deleteNewsgroup(unsigned long newsIdent)
     newsgroups.erase(it);
 }
 
-
 const Article&
 InMemoryDatabase::getArticle(unsigned long newsIdent, unsigned long artIdent)
 {
