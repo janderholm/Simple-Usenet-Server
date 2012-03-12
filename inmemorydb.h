@@ -3,17 +3,19 @@
 
 #include "susdb.h"
 #include <vector>
-namespace sus {
+
+namespace sus
+{
     class MemoryNewsgroup : public Newsgroup
     {
         public: vector<Article> articles;
-    }
+    };
 
     class InMemoryDatabase : public DatabaseInterface
     {
         public:
             vector<Newsgroup> getNewsgroups();
-            void createNewsgroup(string name);
+            void createNewsgroup(const string& name);
             void deleteNewsgroup(unsigned long newsIdent);
             vector<Article> getArticles(unsigned long newsIdent);
             void createArticle(unsigned long newsIdent, const Article& article);
@@ -21,8 +23,7 @@ namespace sus {
             const Article& getArticle(unsigned long newsIdent, unsigned long artIdent);
         private:
             vector<MemoryNewsgroup> newsgroups;
-    }
-
+    };
 }
 
 #endif

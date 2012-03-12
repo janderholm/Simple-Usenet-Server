@@ -1,7 +1,7 @@
 #include <algorithm>
 
 #include "inmemorydb.h"
-#include "vector"
+#include <vector>
 
 
 using namespace std;
@@ -10,14 +10,16 @@ using namespace sus;
 // TODO: A more C++ish way of doing it.
 static newsident = 0;
 
+
 vector<Newsgroup>
 InMemoryDatabase::getNewsgroups()
 {
-    return vector<Newsgroup> v;
+    return vector<MemoryNewsgroup> v;
 }
 
+
 void
-InMemoryDatabase::createNewsgroup(string name)
+InMemoryDatabase::createNewsgroup(const string& name)
 {
     // TODO: string reference.
     MemoryNewsgroup n;
