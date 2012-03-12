@@ -3,7 +3,7 @@
 
 #include <ctime>
 #include <string>
-#include <map>
+#include <vector>
 
 namespace sus {
     struct Article {
@@ -18,14 +18,13 @@ namespace sus {
         unsigned long ident;
     }
 
-
     class DatabaseInterface {
         public:
             // Create newsgroup with 
-            virtual List<Newsgroup> getNewsGroups() = 0;
-            virtual void createNewsGroup(string name) = 0;
-            virtual void deleteNewsGroup(unsigned long newsIdent) = 0;
-            virtual List<Article> getArticles(unsigned long newsIdent) = 0;
+            virtual vector<Newsgroup> getNewsgroups() = 0;
+            virtual void createNewsgroup(string name) = 0;
+            virtual void deleteNewsgroup(unsigned long newsIdent) = 0;
+            virtual vector<Article> getArticles(unsigned long newsIdent) = 0;
             virtual void createArticle(unsigned long newsIdent) = 0;
             virtual void deleteArticle(unsigned long artIdent) = 0;
             virtual void getArticle(unsigned long newsIdent, unsigned long artIdent) = 0;
