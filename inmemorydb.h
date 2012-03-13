@@ -1,4 +1,4 @@
-#ifdef INMEMORYDB_H
+#ifndef INMEMORYDB_H
 #define INMEMORYDB_H
 
 #include "susdb.h"
@@ -18,7 +18,8 @@ namespace sus
             void createNewsgroup(const string& name);
             void deleteNewsgroup(unsigned long newsIdent);
             vector<Article> getArticles(unsigned long newsIdent);
-            void createArticle(unsigned long newsIdent, const Article& article);
+            void createArticle(unsigned long newsIdent, const string& title,
+                const string& author, const string& body);
             void deleteArticle(unsigned long newsIdent, unsigned long artIdent);
             const Article& getArticle(unsigned long newsIdent, unsigned long artIdent);
         private:
