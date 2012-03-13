@@ -11,6 +11,7 @@ using namespace sus;
 static long newsident = 0;
 
 
+
 vector<Newsgroup>
 InMemoryDatabase::getNewsgroups()
 {
