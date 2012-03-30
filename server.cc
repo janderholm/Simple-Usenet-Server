@@ -1,14 +1,13 @@
 #include <iostream>
 #include <sstream>
 
-#include "private/server.h"
-#include "private/connection.h"
-#include "private/connectionclosedexception.h"
+#include "clientserver/server.h"
+#include "clientserver/connection.h"
+#include "clientserver/connectionclosedexception.h"
 
 using namespace std;
 using namespace client_server;
-//using namespace client_server::Connection;
-//using namespace client_server::ConnectionClosedException;
+
 
 int
 main(int argc, const char *argv[])

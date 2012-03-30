@@ -5,7 +5,7 @@ clean:
 	$(RM) server
 
 server:
-	g++ -Wall --std=c++0x server.cc inmemorydb.cc private/*.cc -o server
+	g++ -Wall --std=c++0x server.cc inmemorydb.cc clientserver/*.cc -o server
 
 
 dbtest:
