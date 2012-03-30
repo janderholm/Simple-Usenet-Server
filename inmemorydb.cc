@@ -20,23 +20,39 @@ InMemoryDatabase::getNewsgroups()
 }
 
 
-void
+bool
 InMemoryDatabase::createNewsgroup(const string& name)
 {
     // TODO: string reference.
+    auto it = find_if(newsgroups.begin(), newsgroups.end(),
+        [&name](MemoryNewsgroup& n) { return name == n.name; });
+
+    if (it != newsgroups.end()) {
+        // Already exist;
+        return false;
+    }
+  
     MemoryNewsgroup n;
     n.name = name;
     n.ident = newsident++;
     newsgroups.push_back(n); 
+    return true;
 }
 
 
-void
+bool
 InMemoryDatabase::deleteNewsgroup(unsigned long newsIdent)
 {
     auto it = find_if(newsgroups.begin(), newsgroups.end(),
             [&newsIdent](MemoryNewsgroup& n) { return newsIdent == n.ident; });
+
+    if (it == newsgroups.end()) {
+        // Does not exist
+        return false;
+    }
+
     newsgroups.erase(it);
+    return true;
 }
 
 vector<Article>
@@ -45,10 +61,11 @@ InMemoryDatabase::getArticles(unsigned long newsIdent)
     auto it = find_if(newsgroups.begin(), newsgroups.end(),
         [&newsIdent](MemoryNewsgroup& g) {return g.ident == newsIdent;});
     return it->articles;
-    //TODO: what if it doesn't exist?
+
+    //TODO: We need some kind exit status here...
 }
 
-void
+bool
 InMemoryDatabase::createArticle(unsigned long newsIdent, const string& title,
                 const string& author, const string& body)
 {   
@@ -62,32 +79,54 @@ InMemoryDatabase::createArticle(unsigned long newsIdent, const string& title,
     auto it = find_if(newsgroups.begin(), newsgroups.end(),
             [&newsIdent](MemoryNewsgroup& g) {return g.ident == newsIdent;});
 
+    if (it == newsgroups.end()) {
+        return false;
+    }
+
     it->articles.push_back(a);
+    return true;
 }
 
-void
+bool
 InMemoryDatabase::deleteArticle(unsigned long newsIdent, unsigned long artIdent)
 {
 
-   auto it = find_if(newsgroups.begin(), newsgroups.end(),
+    auto it = find_if(newsgroups.begin(), newsgroups.end(),
             [&newsIdent](MemoryNewsgroup& g) {return g.ident == newsIdent;});
 
-   auto artit = find_if(it->articles.begin(), it->articles.end(),
+    if (it == newsgroups.end()) {
+        return false;
+    }
+
+    auto artit = find_if(it->articles.begin(), it->articles.end(),
            [&artIdent](Article& a) {return a.ident == artIdent;});
 
-   it->articles.erase(artit);
+    if (artit == it->articles.end()) {
+        return false;
+    }
+
+    it->articles.erase(artit);
+    return true;
 }
 
-const Article&
+const Article*
 InMemoryDatabase::getArticle(unsigned long newsIdent, unsigned long artIdent)
 {
-   auto it = find_if(newsgroups.begin(), newsgroups.end(),
+    auto it = find_if(newsgroups.begin(), newsgroups.end(),
             [&newsIdent](MemoryNewsgroup& g) {return g.ident == newsIdent;});
 
-   auto art = find_if(it->articles.begin(), it->articles.end(),
-           [&artIdent](Article& a) {return a.ident == artIdent;});
+    if (it == newsgroups.end()) {
+        return nullptr;
+    }
 
-   return *art;
-   //TODO:fix return statement for non existing article
+    auto art = find_if(it->articles.begin(), it->articles.end(),
+           [&artIdent](Article& a) {return a.ident == artIdent;});
+    
+    if (art == it->articles.end()) {
+        return nullptr;
+    }
+
+    // XXX: This is so ugly i cry...
+    return &(*art);
 }
 

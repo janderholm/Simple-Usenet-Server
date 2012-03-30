@@ -15,13 +15,13 @@ namespace sus
     {
         public:
             vector<Newsgroup> getNewsgroups();
-            void createNewsgroup(const string& name);
-            void deleteNewsgroup(unsigned long newsIdent);
+            bool createNewsgroup(const string& name);
+            bool deleteNewsgroup(unsigned long newsIdent);
             vector<Article> getArticles(unsigned long newsIdent);
-            void createArticle(unsigned long newsIdent, const string& title,
+            bool createArticle(unsigned long newsIdent, const string& title,
                 const string& author, const string& body);
-            void deleteArticle(unsigned long newsIdent, unsigned long artIdent);
-            const Article& getArticle(unsigned long newsIdent, unsigned long artIdent);
+            bool deleteArticle(unsigned long newsIdent, unsigned long artIdent);
+            const Article* getArticle(unsigned long newsIdent, unsigned long artIdent);
         private:
             vector<MemoryNewsgroup> newsgroups;
     };

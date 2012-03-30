@@ -24,15 +24,30 @@ namespace sus
     class DatabaseInterface
     {
         public:
-            // Create newsgroup with 
+            // TODO: Consider returning dummy object with begin, end iterators.
+
+            /* Return list of newsgroups */
             virtual vector<Newsgroup> getNewsgroups() = 0;
-            virtual void createNewsgroup(const string& name) = 0;
-            virtual void deleteNewsgroup(unsigned long newsIdent) = 0;
+
+            /* Create new newsgroup, return false if already exist */
+            virtual bool createNewsgroup(const string& name) = 0;
+
+            /* Delete newsgroup, return false if not exist */
+            virtual bool deleteNewsgroup(unsigned long newsIdent) = 0;
+
+            /* Return list of articles in newsgroup */
             virtual vector<Article> getArticles(unsigned long newsIdent) = 0;
-            virtual void createArticle(unsigned long newsIdent, const string& title,
+
+            /* Create article in newsgroup identified by newsIdent
+             * Return false of newsgroup does not exist */
+            virtual bool createArticle(unsigned long newsIdent, const string& title,
                 const string& author, const string& body) = 0;
-            virtual void deleteArticle(unsigned long newsIdent, unsigned long artIdent) = 0;
-            virtual const Article& getArticle(unsigned long newsIdent, unsigned long artIdent) = 0;
+
+            /* Delete article in newsident, return false if not possible */
+            virtual bool deleteArticle(unsigned long newsIdent, unsigned long artIdent) = 0;
+
+            /* Return pointer to article or null if not possible */
+            virtual const Article* getArticle(unsigned long newsIdent, unsigned long artIdent) = 0;
     };
 }
 
