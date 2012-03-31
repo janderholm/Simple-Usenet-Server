@@ -79,8 +79,10 @@ DiskDatabase::getNewsgroups()
 bool
 DiskDatabase::createNewsgroup(const string& name)
 {
+
     //TODO error handling
     Directory dir(dbname.c_str());
+
     //find the max ident
     //TODO perhaps it is always the first/last
     unsigned long maxIdent = 0;
@@ -101,9 +103,7 @@ DiskDatabase::createNewsgroup(const string& name)
     out << maxIdent;
     string ident = out.str();
 
-    if(mkdir((dbname + "/" + ident).c_str(),0777)==-1){
-        return false;
-    }
+    mkdir((dbname + "/" + ident).c_str(),0777);
 
     ofstream write (dbname + "/" + ident + "/name");
     write << name << endl;
@@ -119,6 +119,10 @@ DiskDatabase::deleteNewsgroup(unsigned long newsIdent)
     stringstream out;
     out << newsIdent;
     string ident = out.str();
+    
+    if(opendir((dbname + "/" + ident).c_str()) == NULL)
+        return false; //does not exist
+
     Directory newsGroups((dbname + "/" + ident).c_str());
     for(auto it = newsGroups.begin(); it != newsGroups.end(); ++it){
         string artPath(dbname + "/" + ident + "/" + *it);
@@ -126,11 +130,6 @@ DiskDatabase::deleteNewsgroup(unsigned long newsIdent)
         remove((artPath + "/author").c_str());
         remove((artPath + "/title").c_str());
         rmdir(artPath.c_str());
-        //returns -1 even if it worked ?!
-        /*if(rmdir((dbname + "/" + ident + "/" + *it).c_str()) == -1){
-            cerr << "Error: directory could not be removed" << " " << dbname + "/" + ident + "/" + *it  << endl;
-            return false;
-        }*/
     }
     remove((dbname + "/" + ident + "/name").c_str());
     rmdir((dbname + "/" + ident).c_str());
@@ -143,7 +142,8 @@ DiskDatabase::getArticles(unsigned long newsIdent)
     stringstream out;
     out << newsIdent;
     string ident = out.str();
-    vector<Article> articles; 
+    vector<Article> articles;
+
     Directory dir((dbname + "/" + ident).c_str());
     for(auto it = dir.begin(); it != dir.end(); ++it){
         Article a;
@@ -168,6 +168,9 @@ DiskDatabase::createArticle(unsigned long newsIdent, const string& title,
     stringstream sid;
     sid << newsIdent;
     string s_newsIdent = sid.str();
+
+    if(opendir((dbname + "/" + s_newsIdent).c_str()) == NULL)
+        return false; //does not exist
 
     Directory dir((dbname + "/" + s_newsIdent).c_str());
     //find the max ident
@@ -219,6 +222,10 @@ DiskDatabase::deleteArticle(unsigned long newsIdent, unsigned long artIdent)
     string s_artIdent = out.str();
 
     string artPath = dbname + "/" + s_newsIdent + "/" + s_artIdent;
+
+    if(opendir(artPath.c_str()) == NULL)
+        return false; //does not exist
+
     remove((artPath + "/body").c_str());
     remove((artPath + "/author").c_str());
     remove((artPath + "/title").c_str());
@@ -238,6 +245,9 @@ DiskDatabase::getArticle(unsigned long newsIdent, unsigned long artIdent)
     string s_artIdent = out.str();
 
     string artPath = dbname + "/" + s_newsIdent + "/" + s_artIdent;    
+
+    if(opendir(artPath.c_str()) == NULL)
+        return nullptr; //does not exist
 
     Directory dir(artPath.c_str());
 
