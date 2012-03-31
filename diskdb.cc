@@ -27,7 +27,8 @@ class DirIterator {
 
         DirIterator& operator++() {
             entry = readdir(dirp);
-            if(entry != 0 && (strcmp(entry->d_name,".") == 0 ||
+            //ignore some files
+            if(entry != 0 && (strcmp(entry->d_name,".") == 0 || 
                              strcmp(entry->d_name,"..") == 0 ||
                              strcmp(entry->d_name,"name") == 0)){
                 operator++();
@@ -53,10 +54,6 @@ class Directory {
         DIR* dirp;
 };
 
-
-// TODO: A more C++ish way of doing it.
-static long newsident = 0;
-static long artident = 0;
 string dbname = "diskdb";
 
 vector<Newsgroup>
@@ -124,10 +121,11 @@ DiskDatabase::deleteNewsgroup(unsigned long newsIdent)
     string ident = out.str();
     Directory newsGroups((dbname + "/" + ident).c_str());
     for(auto it = newsGroups.begin(); it != newsGroups.end(); ++it){
-        remove((dbname + "/" + ident + "/" + *it + "/body").c_str());
-        remove((dbname + "/" + ident + "/" + *it + "/author").c_str());
-        remove((dbname + "/" + ident + "/" + *it + "/title").c_str());
-        rmdir((dbname + "/" + ident + "/" + *it).c_str());
+        string artPath(dbname + "/" + ident + "/" + *it);
+        remove((artPath + "/body").c_str());
+        remove((artPath + "/author").c_str());
+        remove((artPath + "/title").c_str());
+        rmdir(artPath.c_str());
         //returns -1 even if it worked ?!
         /*if(rmdir((dbname + "/" + ident + "/" + *it).c_str()) == -1){
             cerr << "Error: directory could not be removed" << " " << dbname + "/" + ident + "/" + *it  << endl;
@@ -149,9 +147,10 @@ DiskDatabase::getArticles(unsigned long newsIdent)
     Directory dir((dbname + "/" + ident).c_str());
     for(auto it = dir.begin(); it != dir.end(); ++it){
         Article a;
-        a.title = readFile(dbname + "/" + ident + "/" + *it + "/" + "title");
-        a.body = readFile(dbname + "/" + ident + "/" + *it + "/" + "body");
-        a.author = readFile(dbname + "/" + ident + "/" + *it + "/" + "author");
+        string artPath = dbname + "/" + ident + "/" + *it;
+        a.title = readFile(artPath + "/title");
+        a.body = readFile(artPath + "/body");
+        a.author = readFile(artPath + "/author");
         istringstream(*it) >> a.ident;
         articles.push_back(a);
     }
@@ -190,16 +189,17 @@ DiskDatabase::createArticle(unsigned long newsIdent, const string& title,
     stringstream out;
     out << maxIdent;
     string ident = out.str();
+    string artPath = dbname + "/" + s_newsIdent + "/" + ident;
 
-    if(mkdir((dbname + "/" + s_newsIdent + "/" + ident).c_str(),0777)==-1){
+    if(mkdir(artPath.c_str(),0777)==-1){
         return false;
     }
 
-    ofstream write1(dbname + "/" + s_newsIdent + "/" + ident + "/title");
+    ofstream write1(artPath + "/title");
     write1 << title << endl;
-    ofstream write2(dbname + "/" + s_newsIdent + "/" + ident + "/body");
+    ofstream write2(artPath + "/body");
     write2 << body << endl;
-    ofstream write3(dbname + "/" + s_newsIdent + "/" + ident + "/author");
+    ofstream write3(artPath + "/author");
     write3 << author << endl;
     write1.close();
     write2.close();
@@ -218,10 +218,11 @@ DiskDatabase::deleteArticle(unsigned long newsIdent, unsigned long artIdent)
     out << artIdent;
     string s_artIdent = out.str();
 
-    remove((dbname + "/" + s_newsIdent + "/" + s_artIdent + "/body").c_str());
-    remove((dbname + "/" + s_newsIdent + "/" + s_artIdent + "/author").c_str());
-    remove((dbname + "/" + s_newsIdent + "/" + s_artIdent + "/title").c_str());
-    rmdir((dbname + "/" + s_newsIdent + "/" + s_artIdent).c_str());
+    string artPath = dbname + "/" + s_newsIdent + "/" + s_artIdent;
+    remove((artPath + "/body").c_str());
+    remove((artPath + "/author").c_str());
+    remove((artPath + "/title").c_str());
+    rmdir(artPath.c_str());
 
     return true;
 }
@@ -236,13 +237,15 @@ DiskDatabase::getArticle(unsigned long newsIdent, unsigned long artIdent)
     out << artIdent;
     string s_artIdent = out.str();
 
-    Directory dir((dbname + "/" + s_newsIdent + "/" + s_artIdent).c_str());
+    string artPath = dbname + "/" + s_newsIdent + "/" + s_artIdent;    
+
+    Directory dir(artPath.c_str());
 
     Article* a = new Article();  // XXX: Need to think about freeing it
 
-    a->title = readFile(dbname + "/" + s_newsIdent + "/" + s_artIdent + "/" + "title");
-    a->body = readFile(dbname + "/" + s_newsIdent + "/" + s_artIdent + "/" + "body");
-    a->author = readFile(dbname + "/" + s_newsIdent + "/" + s_artIdent + "/" + "author");
+    a->title = readFile(artPath + "/title");
+    a->body = readFile(artPath + "/body");
+    a->author = readFile(artPath + "/author");
     istringstream(s_artIdent) >> a->ident;
 
     return a;
