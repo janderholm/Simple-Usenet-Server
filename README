@@ -1,1 +1,27 @@
 This project aims at creating a simple usenet server in C++.
+
+Database:
+
+The database structure:
+.
+├── 1
+│   ├── 1
+│   │   ├── author
+│   │   ├── body
+│   │   └── name
+│   ├── 2
+│   │   ├── author
+│   │   ├── body
+│   │   └── name
+│   └── name
+└── 2
+    ├── 1
+    │   ├── author
+    │   ├── body
+    │   └── name
+    ├── 2
+    │   ├── author
+    │   ├── body
+    │   └── name
+    └── name
+

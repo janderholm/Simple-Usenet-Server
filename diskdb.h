@@ -22,6 +22,7 @@ namespace sus
                 const string& author, const string& body);
             bool deleteArticle(unsigned long newsIdent, unsigned long artIdent);
             const Article* getArticle(unsigned long newsIdent, unsigned long artIdent);
+            string readFile(string file);
         private:
             //vector<DiskNewsgroup> newsgroups;
     };

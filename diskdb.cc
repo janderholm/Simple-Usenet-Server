@@ -6,6 +6,8 @@
 #include <dirent.h>
 #include <string.h>
 #include <iostream> 
+#include <fstream>
+#include <sstream>
 
 using namespace std;
 using namespace sus;
@@ -24,7 +26,9 @@ class DirIterator {
 
         DirIterator& operator++() {
             entry = readdir(dirp);
-            if(entry != 0 && (strcmp(entry->d_name,".") == 0 || strcmp(entry->d_name,"..") == 0)){
+            if(entry != 0 && (strcmp(entry->d_name,".") == 0 || 
+                             strcmp(entry->d_name,"..") == 0 ||
+                             strcmp(entry->d_name,"name") == 0)){
                 operator++();
             }
             return *this;
@@ -56,16 +60,19 @@ static long artident = 0;
 vector<Newsgroup>
 DiskDatabase::getNewsgroups()
 {
-    string dirname = "diskdb";    
+    // TODO: paths should atleast be global constants
+    string dirname = "diskdb";
     Directory dir(dirname.c_str());
-    int id = 0;
     vector<Newsgroup> groups;
     for(auto it = dir.begin(); it != dir.end(); ++it){
         Newsgroup n;
-        n.name = *it;
-        n.ident = id++;
-        groups.push_back(n); 
+        n.name = readFile(dirname + "/" + *it + "/" + "name");
+        istringstream(*it) >> n.ident;
+        groups.push_back(n);
     }
+    sort(groups.begin(),groups.end(),
+        [](const Newsgroup& a,const Newsgroup& b) {return a.ident < b.ident;});
+
     return groups;
 }
 
@@ -109,6 +116,25 @@ DiskDatabase::getArticle(unsigned long newsIdent, unsigned long artIdent)
     return 0;
 }
 
+string
+DiskDatabase::readFile(string file){
+    ifstream indata;
+    string result;
+    string c;
+    indata.open(file); // opens the file
+    if(!indata) { // file couldn't be opened
+      cerr << "Error: file could not be opened" << endl;
+      exit(1);
+    }
 
-
-
+    indata >> result;
+    while (true) { // keep reading until end-of-file
+        indata >> c; // sets EOF flag if no value found
+        if(indata.eof()){
+            break;
+        }
+        result += c;
+    }
+    return result;
+}
+ 

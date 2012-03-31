@@ -3,6 +3,7 @@
 
 #include "susdb.h"
 #include "inmemorydb.h"
+//#include "diskdb.h"
 #include "clientserver/server.h"
 #include "clientserver/connection.h"
 #include "clientserver/connectionclosedexception.h"
@@ -57,6 +58,7 @@ main(int argc, const char *argv[])
 
 
     DatabaseInterface* db = new InMemoryDatabase();
+    //DatabaseInterface* db = new DiskDatabase();
     char b;
 
     while (true) {
