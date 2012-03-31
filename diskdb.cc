@@ -8,6 +8,8 @@
 #include <iostream> 
 #include <fstream>
 #include <sstream>
+#include<sys/stat.h>
+#include<sys/types.h>
 
 using namespace std;
 using namespace sus;
@@ -55,17 +57,18 @@ class Directory { //newsgroups i guess
 // TODO: A more C++ish way of doing it.
 static long newsident = 0;
 static long artident = 0;
+string dbname = "diskdb";
 
 vector<Newsgroup>
 DiskDatabase::getNewsgroups()
 {
     // TODO: paths should atleast be global constants
-    string dirname = "diskdb";
-    Directory dir(dirname.c_str());
+    
+    Directory dir(dbname.c_str());
     vector<Newsgroup> groups;
     for(auto it = dir.begin(); it != dir.end(); ++it){
         Newsgroup n;
-        n.name = readFile(dirname + "/" + *it + "/" + "name");
+        n.name = readFile(dbname + "/" + *it + "/" + "name");
         istringstream(*it) >> n.ident;
         groups.push_back(n);
     }
@@ -79,7 +82,39 @@ DiskDatabase::getNewsgroups()
 bool
 DiskDatabase::createNewsgroup(const string& name)
 {
-    return false;
+    //TODO error handling
+    Directory dir(dbname.c_str());
+    //find the max ident
+    //TODO perhaps it is always the first/last
+    unsigned long maxIdent = 0;
+    for(auto it = dir.begin(); it != dir.end(); ++it){
+        unsigned long ident;
+        istringstream(*it) >> ident;
+        if(readFile(dbname + "/" + *it + "/" + "name") == name){
+            return false; //already exist        
+        }
+        if(ident > maxIdent){
+            maxIdent = ident;
+        }
+    }
+
+    if(maxIdent != 0){
+        ++maxIdent;
+    }
+
+    stringstream out;
+    out << maxIdent;
+    string ident = out.str();
+
+    if(mkdir((dbname + "/" + ident).c_str(),0777)==-1){
+        return false;
+    }
+
+    ofstream write (dbname + "/" + ident + "/name");
+    write << name << endl;
+    write.close();
+
+    return true;
 }
 
 
