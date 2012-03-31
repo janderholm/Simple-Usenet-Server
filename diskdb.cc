@@ -12,7 +12,6 @@
 using namespace std;
 using namespace sus;
 
-// TODO: Stolen from exam, need to add our own touch to it.
 class DirIterator {
     public:
         DirIterator(DIR* d) : dirp(d) { 
@@ -26,7 +25,7 @@ class DirIterator {
 
         DirIterator& operator++() {
             entry = readdir(dirp);
-            if(entry != 0 && (strcmp(entry->d_name,".") == 0 || 
+            if(entry != 0 && (strcmp(entry->d_name,".") == 0 ||
                              strcmp(entry->d_name,"..") == 0 ||
                              strcmp(entry->d_name,"name") == 0)){
                 operator++();
