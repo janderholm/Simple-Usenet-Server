@@ -98,9 +98,7 @@ DiskDatabase::createNewsgroup(const string& name)
         }
     }
 
-    if(maxIdent != 0){
-        ++maxIdent;
-    }
+    ++maxIdent;
 
     stringstream out;
     out << maxIdent;
@@ -187,9 +185,7 @@ DiskDatabase::createArticle(unsigned long newsIdent, const string& title,
         }
     }
 
-    if(maxIdent != 0){
-        ++maxIdent;
-    }
+    ++maxIdent;
 
     stringstream out;
     out << maxIdent;
@@ -257,20 +253,19 @@ DiskDatabase::readFile(string file){
     ifstream indata;
     string result;
     string c;
-    indata.open(file); // opens the file
+    indata.open(file);
     if(!indata) { // file couldn't be opened
       cerr << "Error: file could not be opened" << endl;
       exit(1);
     }
-
-    indata >> result;
-    while (true) { // keep reading until end-of-file
-        indata >> c; // sets EOF flag if no value found
-        if(indata.eof()){
-            break;
-        }
-        result += c;
+    string line;
+    while ( indata.good() )
+    {
+        getline(indata,line);
+        result += line;
     }
+    indata.close();
+
     return result;
 }
  
