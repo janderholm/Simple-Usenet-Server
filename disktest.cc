@@ -18,7 +18,14 @@ main()
     
     db.createArticle(5, "the new article",
                 "the german", "body ahoe!");
+
+    db.deleteArticle(5, 2);
+
     db.getArticles(5);
+
+    const Article* a = db.getArticle(5,1);
+    cout << "i got " << a->ident << " " << a->title << " " << a->author;
+    //free(a);
 
     vector<Newsgroup> vec = db.getNewsgroups();
     for(auto it = vec.begin(); it != vec.end(); ++it){
@@ -30,7 +37,6 @@ main()
         cout << it->ident << " " << it->title << endl;
     }
 
-    
 
     return 0;
 }

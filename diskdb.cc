@@ -42,7 +42,7 @@ class DirIterator {
         dirent* entry;
 };
 
-class Directory { //newsgroups i guess
+class Directory {
     public:
         typedef DirIterator iterator;
         Directory(const char* name) : dirp(opendir(name)) {}
@@ -215,14 +215,41 @@ DiskDatabase::createArticle(unsigned long newsIdent, const string& title,
 bool
 DiskDatabase::deleteArticle(unsigned long newsIdent, unsigned long artIdent)
 {
-    return false;
+    stringstream out;
+    out << newsIdent;
+    string s_newsIdent = out.str();
+    out.str("");
+    out << artIdent;
+    string s_artIdent = out.str();
+
+    remove((dbname + "/" + s_newsIdent + "/" + s_artIdent + "/body").c_str());
+    remove((dbname + "/" + s_newsIdent + "/" + s_artIdent + "/author").c_str());
+    remove((dbname + "/" + s_newsIdent + "/" + s_artIdent + "/title").c_str());
+    rmdir((dbname + "/" + s_newsIdent + "/" + s_artIdent).c_str());
+
+    return true;
 }
 
 const Article*
 DiskDatabase::getArticle(unsigned long newsIdent, unsigned long artIdent)
 {
+    stringstream out;
+    out << newsIdent;
+    string s_newsIdent = out.str();
+    out.str("");
+    out << artIdent;
+    string s_artIdent = out.str();
 
-    return 0;
+    Directory dir((dbname + "/" + s_newsIdent + "/" + s_artIdent).c_str());
+
+    Article* a = new Article();  // XXX: Need to think about freeing it
+
+    a->title = readFile(dbname + "/" + s_newsIdent + "/" + s_artIdent + "/" + "title");
+    a->body = readFile(dbname + "/" + s_newsIdent + "/" + s_artIdent + "/" + "body");
+    a->author = readFile(dbname + "/" + s_newsIdent + "/" + s_artIdent + "/" + "author");
+    istringstream(s_artIdent) >> a->ident;
+
+    return a;
 }
 
 string
