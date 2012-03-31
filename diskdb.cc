@@ -121,20 +121,95 @@ DiskDatabase::createNewsgroup(const string& name)
 bool
 DiskDatabase::deleteNewsgroup(unsigned long newsIdent)
 {
-    return false;
+    stringstream out;
+    out << newsIdent;
+    string ident = out.str();
+    Directory newsGroups((dbname + "/" + ident).c_str());
+    for(auto it = newsGroups.begin(); it != newsGroups.end(); ++it){
+        remove((dbname + "/" + ident + "/" + *it + "/body").c_str());
+        remove((dbname + "/" + ident + "/" + *it + "/author").c_str());
+        remove((dbname + "/" + ident + "/" + *it + "/title").c_str());
+        rmdir((dbname + "/" + ident + "/" + *it).c_str());
+        //returns -1 even if it worked ?!
+        /*if(rmdir((dbname + "/" + ident + "/" + *it).c_str()) == -1){
+            cerr << "Error: directory could not be removed" << " " << dbname + "/" + ident + "/" + *it  << endl;
+            return false;
+        }*/
+    }
+    remove((dbname + "/" + ident + "/name").c_str());
+    rmdir((dbname + "/" + ident).c_str());
+    return true;
 }
 
 vector<Article>
 DiskDatabase::getArticles(unsigned long newsIdent)
 {
-    return vector<Article>();
+    stringstream out;
+    out << newsIdent;
+    string ident = out.str();
+    vector<Article> articles; 
+    Directory dir((dbname + "/" + ident).c_str());
+    for(auto it = dir.begin(); it != dir.end(); ++it){
+        Article a;
+        a.title = readFile(dbname + "/" + ident + "/" + *it + "/" + "title");
+        a.body = readFile(dbname + "/" + ident + "/" + *it + "/" + "body");
+        a.author = readFile(dbname + "/" + ident + "/" + *it + "/" + "author");
+        istringstream(*it) >> a.ident;
+        articles.push_back(a);
+    }
+    sort(articles.begin(),articles.end(),
+        [](const Article& a,const Article& b) {return a.ident < b.ident;});
+
+    return articles;
 }
 
 bool
 DiskDatabase::createArticle(unsigned long newsIdent, const string& title,
                 const string& author, const string& body)
 {   
-    return false;
+
+    stringstream sid;
+    sid << newsIdent;
+    string s_newsIdent = sid.str();
+
+    Directory dir((dbname + "/" + s_newsIdent).c_str());
+    //find the max ident
+    //TODO perhaps it is always the first/last
+    unsigned long maxIdent = 0;
+    for(auto it = dir.begin(); it != dir.end(); ++it){
+        unsigned long ident;
+        istringstream(*it) >> ident;
+        if(readFile(dbname + "/" + s_newsIdent + "/" +  *it + "/" + "title") == title){
+            return false; //already exist        
+        }
+        if(ident > maxIdent){
+            maxIdent = ident;
+        }
+    }
+
+    if(maxIdent != 0){
+        ++maxIdent;
+    }
+
+    stringstream out;
+    out << maxIdent;
+    string ident = out.str();
+
+    if(mkdir((dbname + "/" + s_newsIdent + "/" + ident).c_str(),0777)==-1){
+        return false;
+    }
+
+    ofstream write1(dbname + "/" + s_newsIdent + "/" + ident + "/title");
+    write1 << title << endl;
+    ofstream write2(dbname + "/" + s_newsIdent + "/" + ident + "/body");
+    write2 << body << endl;
+    ofstream write3(dbname + "/" + s_newsIdent + "/" + ident + "/author");
+    write3 << author << endl;
+    write1.close();
+    write2.close();
+    write3.close();
+
+    return true;
 }
 
 bool
