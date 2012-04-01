@@ -194,9 +194,7 @@ DiskDatabase::createArticle(unsigned long newsIdent, const string& title,
     string ident = out.str();
     string artPath = dbname + "/" + s_newsIdent + "/" + ident;
 
-    if(mkdir(artPath.c_str(),0777)==-1){
-        return false;
-    }
+    mkdir(artPath.c_str(),0777);
 
     ofstream write1(artPath + "/title");
     write1 << title << endl;
