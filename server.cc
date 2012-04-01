@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -39,7 +40,7 @@ void
 ServerMessageHandler::listArt()
 {
     char c;
-    int n;
+    unsigned int n;
 
     if ((c = connection->read()) == Protocol::PAR_NUM) {
         n = readNum();
@@ -80,15 +81,109 @@ ServerMessageHandler::listArt()
 void
 ServerMessageHandler::createArt()
 {
+    char c;
+    unsigned int n;
+    string s[3];
+
+    if ((c = connection->read()) == Protocol::PAR_NUM) {
+        n = readNum();
+    } else {
+        cerr << "ERR" << endl;
+        return;
+    }
+
+    for (int i = 0; i < 3; ++i) {
+        if ((c = connection->read()) == Protocol::PAR_STRING) {
+            s[i] = readString();
+        } else {
+            cerr << "ERR" << endl;
+            return;
+        }
+    }
+
+    if ((c = connection->read()) == Protocol::COM_END) {
+        if (db->createArticle(n, s[0], s[1], s[2])) {
+            connection->write(Protocol::ANS_ACK);
+        } else {
+            connection->write(Protocol::ANS_NAK);
+            connection->write(Protocol::ERR_NG_DOES_NOT_EXIST);
+        }
+        connection->write(Protocol::ANS_END);
+    } else {
+        cerr << "ERR" << endl;
+    }
 }
+
 
 void ServerMessageHandler::deleteArt()
 {
+    char c;
+    unsigned int n[2];
+    for (int i = 0; i < 2; ++i) {
+        if ((c = connection->read()) == Protocol::PAR_NUM) {
+            n[i] = readNum();
+        } else {
+            cerr << "ERR" << endl;
+            return;
+        }
+    }
+
+    if ((c = connection->read()) == Protocol::COM_END) {
+        if(db->deleteArticle(n[0], n[1])) {
+            connection->write(Protocol::ANS_ACK);
+        } else {
+            connection->write(Protocol::ANS_NAK);
+            if (db->existsNewsgroup(n[0])) {
+                connection->write(Protocol::ERR_ART_DOES_NOT_EXIST);
+            } else {
+                connection->write(Protocol::ERR_NG_DOES_NOT_EXIST);
+            }
+        }
+        connection->write(Protocol::ANS_END);
+    } else {
+        cerr << "ERR" << endl;
+        return;
+    }
 }
 
 void ServerMessageHandler::getArt()
 {
+    char c;
+    unsigned int n[2];
+    for (int i = 0; i < 2; ++i) {
+        if ((c = connection->read()) == Protocol::PAR_NUM) {
+            n[i] = readNum();
+        } else {
+            cerr << "ERR" << endl;
+            return;
+        }
+    }
+
+    if ((c = connection->read()) == Protocol::COM_END) {
+        if (db->existsNewsgroup(n[0])) {
+            auto arts = db->getArticles(n[0]);
+            auto it = find_if(arts.begin(), arts.end(),
+                    [&n](Article& a) {return a.ident == n[1];});
+            if (it != arts.end()) {
+                connection->write(Protocol::ANS_ACK);
+                connection->write(Protocol::PAR_STRING);
+                writeString(it->title);
+                connection->write(Protocol::PAR_STRING);
+                writeString(it->author);
+                connection->write(Protocol::PAR_STRING);
+                writeString(it->body);
+            } else {
+                connection->write(Protocol::ANS_NAK);
+                connection->write(Protocol::ERR_ART_DOES_NOT_EXIST);
+            }
+        } else {
+            connection->write(Protocol::ANS_NAK);
+            connection->write(Protocol::ERR_NG_DOES_NOT_EXIST);
+        }
+        connection->write(Protocol::ANS_END);
+    }
 }
+
 
 void
 ServerMessageHandler::listNG()
