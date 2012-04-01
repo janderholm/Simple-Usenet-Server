@@ -23,6 +23,10 @@ class ServerMessageHandler : public MessageHandler {
         void listNG();
         void createNG();
         void deleteNG();
+        void listArt();
+        void createArt();
+        void deleteArt();
+        void getArt();
     private:
         DatabaseInterface* db;
 };
@@ -30,7 +34,26 @@ class ServerMessageHandler : public MessageHandler {
 
 ServerMessageHandler::ServerMessageHandler(Connection* connection, DatabaseInterface* db) :
     MessageHandler(connection), db(db) {}
- 
+
+void
+ServerMessageHandler::listArt()
+{
+
+}
+
+void
+ServerMessageHandler::createArt()
+{
+}
+
+void ServerMessageHandler::deleteArt()
+{
+}
+
+void ServerMessageHandler::getArt()
+{
+}
+
 void
 ServerMessageHandler::listNG()
 {
@@ -102,6 +125,8 @@ ServerMessageHandler::deleteNG()
         cerr << "BAD: " << b << "deleteNG" << endl;
     }
 }
+
+
 
 int
 main(int argc, const char *argv[])
