@@ -232,7 +232,7 @@ DiskDatabase::deleteArticle(unsigned long newsIdent, unsigned long artIdent)
     return true;
 }
 
-const Article*
+Article
 DiskDatabase::getArticle(unsigned long newsIdent, unsigned long artIdent)
 {
     stringstream out;
@@ -245,18 +245,28 @@ DiskDatabase::getArticle(unsigned long newsIdent, unsigned long artIdent)
     string artPath = dbname + "/" + s_newsIdent + "/" + s_artIdent;    
 
     if(opendir(artPath.c_str()) == NULL)
-        return nullptr; //does not exist
+        return Article(); //does not exist //XXX return?
 
     Directory dir(artPath.c_str());
 
-    Article* a = new Article();  // XXX: Need to think about freeing it
-
-    a->title = readFile(artPath + "/title");
-    a->body = readFile(artPath + "/body");
-    a->author = readFile(artPath + "/author");
-    istringstream(s_artIdent) >> a->ident;
+    Article a;
+    a.title = readFile(artPath + "/title");
+    a.body = readFile(artPath + "/body");
+    a.author = readFile(artPath + "/author");
+    istringstream(s_artIdent) >> a.ident;
 
     return a;
+}
+
+bool
+DiskDatabase::existsNewsgroup(unsigned long newsIdent)
+{
+    stringstream out;
+    out << newsIdent;
+    string s_newsIdent = out.str();
+    if(opendir((dbname + "/" + s_newsIdent).c_str()) == NULL)
+        return false;
+    return true;
 }
 
 string
