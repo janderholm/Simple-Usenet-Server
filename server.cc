@@ -17,24 +17,22 @@ using namespace client_server;
 using namespace protocol;
 
 
-class MessageHandler {
+class ServerMessageHandler : public MessageHandler {
     public:
-        MessageHandler(Connection* c, DatabaseInterface* db);
+        ServerMessageHandler(Connection* connection, DatabaseInterface* db);
         void listNG();
         void createNG();
         void deleteNG();
     private:
         DatabaseInterface* db;
-        Connection* connection;
-        ConnectionHandler ch;
 };
 
 
-MessageHandler::MessageHandler(Connection* c, DatabaseInterface* db) :
-    connection(c), ch(c) {}
-
+ServerMessageHandler::ServerMessageHandler(Connection* connection, DatabaseInterface* db) :
+    MessageHandler(connection), db(db) {}
+ 
 void
-MessageHandler::listNG()
+ServerMessageHandler::listNG()
 {
     // Leave any exceptions to a higher power.
     char b = connection->read();
@@ -42,12 +40,12 @@ MessageHandler::listNG()
         auto ng = db->getNewsgroups();
         connection->write(Protocol::ANS_LIST_NG);
         connection->write(Protocol::PAR_NUM);
-        ch.writeNum(ng.size());
+        writeNum(ng.size());
         for (auto it = ng.begin(); it != ng.end(); ++it) {
             connection->write(Protocol::PAR_NUM);
-            ch.writeNum(it->ident);
+            writeNum(it->ident);
             connection->write(Protocol::PAR_STRING);
-            ch.writeString(it->name);
+            writeString(it->name);
         }
         connection->write(Protocol::ANS_END);
     } else {
@@ -57,12 +55,12 @@ MessageHandler::listNG()
 
 
 void
-MessageHandler::createNG()
+ServerMessageHandler::createNG()
 {
     char b = connection->read();
     string s;
     if (b == Protocol::PAR_STRING) {
-        s = ch.readString();
+        s = readString();
     } else {
         cerr << "Malformed message byte: " << b << "in createNG" << endl;
     }
@@ -82,12 +80,12 @@ MessageHandler::createNG()
 }
 
 void
-MessageHandler::deleteNG()
+ServerMessageHandler::deleteNG()
 {
     char b;
     int n;
     if ((b = connection->read()) == Protocol::PAR_NUM) {
-        n = ch.readNum();
+        n = readNum();
     } else {
         cerr << "Malformed message byte: " << b << "in deleteNG" << endl;
     }
@@ -129,7 +127,7 @@ main(int argc, const char *argv[])
 
     while (true) {
         Connection* connection = server.waitForActivity();
-        MessageHandler handle(connection, db);
+        ServerMessageHandler handle(connection, db);
         if (connection != nullptr) {
             try {
                 b = connection->read();

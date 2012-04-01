@@ -1,18 +1,17 @@
+#include <string>
 #include "utils.h"
 #include "clientserver/protocol.h"
-
-
 
 using namespace std;
 using namespace sus;
 using namespace client_server;
 using namespace protocol;
 
-ConnectionHandler::ConnectionHandler(Connection* connection) :
+MessageHandler::MessageHandler(Connection* connection) :
 	connection(connection) {}
 
 int
-ConnectionHandler::readNum()
+MessageHandler::readNum()
 {
     int n;
     char* nc = (char*) &n;
@@ -25,7 +24,7 @@ ConnectionHandler::readNum()
 }
 
 string
-ConnectionHandler::readString()
+MessageHandler::readString()
 {
     int n = readNum();
     string s(n, '\0');
@@ -36,7 +35,7 @@ ConnectionHandler::readString()
 }
 
 void
-ConnectionHandler::writeNum(int n)
+MessageHandler::writeNum(int n)
 {
     // TODO: static_cast
     char* nb = (char*) &n;
@@ -49,7 +48,7 @@ ConnectionHandler::writeNum(int n)
 
 
 void
-ConnectionHandler::writeString(string& s)
+MessageHandler::writeString(string& s)
 {
     int n = s.size();
     writeNum(n);

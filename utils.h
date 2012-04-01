@@ -1,5 +1,5 @@
-#ifndef CONNECTIONHANDLER_H
-#define CONNECTIONHANDLER_H
+#ifndef UTILS_H
+#define UTILS_H
 
 
 #include <string>
@@ -11,14 +11,14 @@ using namespace std;
 using namespace client_server;
 
 namespace sus {
-    class ConnectionHandler {
+    class MessageHandler {
         public:
-            ConnectionHandler(Connection* connection);
+            MessageHandler(Connection* connection);
             string readString();
             int readNum();
             void writeNum(int n);
             void writeString(string& s);
-        private:
+        protected:
             Connection* connection;
     };
 }
