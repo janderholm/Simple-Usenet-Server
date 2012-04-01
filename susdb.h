@@ -25,7 +25,7 @@ namespace sus
     {
         public:
             // TODO: Consider returning dummy object with begin, end iterators.
-            //virtual ~DatabaseInterface() = 0;
+            virtual ~DatabaseInterface() {}
 
             /* Return list of newsgroups */
             virtual vector<Newsgroup> getNewsgroups() = 0;

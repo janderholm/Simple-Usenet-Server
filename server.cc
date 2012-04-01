@@ -5,7 +5,7 @@
 
 #include "susdb.h"
 #include "inmemorydb.h"
-//#include "diskdb.h"
+#include "diskdb.h"
 #include "utils.h"
 #include "clientserver/server.h"
 #include "clientserver/connection.h"
@@ -297,10 +297,13 @@ main(int argc, const char *argv[])
         return 1;
     }
 
+    DatabaseInterface* db;
+    if (true) {
+        db = new InMemoryDatabase();
+    } else {
+        db = new DiskDatabase();
+    }
 
-    InMemoryDatabase db1;
-    DatabaseInterface* db = &db1; //new InMemoryDatabase();
-    //DatabaseInterface* db = new DiskDatabase();
     char b;
 
     while (true) {
@@ -344,13 +347,11 @@ main(int argc, const char *argv[])
                         printf("%02x\n", b);
                 }
 
-
-                
             } catch (ConnectionClosedException&) {
                 server.deregisterConnection(connection);
                 delete connection;
                 cout << "Client closed connection" << endl;
-                break;
+                //break;
             }
         } else {
             server.registerConnection(new Connection);
@@ -358,6 +359,6 @@ main(int argc, const char *argv[])
         }
     }
 
-    //delete db;
+    delete db;
     return 0;
 }
