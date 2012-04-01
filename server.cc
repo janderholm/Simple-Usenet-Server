@@ -38,6 +38,42 @@ ServerMessageHandler::ServerMessageHandler(Connection* connection, DatabaseInter
 void
 ServerMessageHandler::listArt()
 {
+    char c;
+    int n;
+
+    if ((c = connection->read()) == Protocol::PAR_NUM) {
+        n = readNum();
+    } else {
+        cerr << "wrong: " << c << endl;
+        return;
+    }
+
+    if ((c = connection->read()) == Protocol::COM_END) {
+        if (db->existsNewsgroup(n)) {
+            connection->write(Protocol::ANS_ACK);
+            auto arts = db->getArticles(n);
+            connection->write(Protocol::PAR_NUM);
+            writeNum(arts.size());
+
+            for (auto it = arts.begin(); it != arts.end(); ++it) {
+                connection->write(Protocol::PAR_NUM);
+                writeNum(it->ident);
+                connection->write(Protocol::PAR_STRING);
+                writeString(it->title);
+                connection->write(Protocol::PAR_STRING);
+                writeString(it->author);
+                connection->write(Protocol::PAR_STRING);
+                writeString(it->body);
+            }
+        } else {
+            connection->write(Protocol::ANS_NAK); 
+            connection->write(Protocol::ERR_NG_DOES_NOT_EXIST);
+        }
+        connection->write(Protocol::ANS_END);
+    } else {
+        cerr << "wrong byte: " << c << endl;
+    }
+
 
 }
 
