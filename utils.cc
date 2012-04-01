@@ -10,10 +10,10 @@ using namespace protocol;
 MessageHandler::MessageHandler(Connection* connection) :
 	connection(connection) {}
 
-int
+unsigned int
 MessageHandler::readNum()
 {
-    int n;
+    unsigned int n;
     char* nc = (char*) &n;
 
     for (int i = 0; i < 4; ++i) {
@@ -26,16 +26,16 @@ MessageHandler::readNum()
 string
 MessageHandler::readString()
 {
-    int n = readNum();
+    unsigned int n = readNum();
     string s(n, '\0');
-    for (int i = 0; i < n; ++i) {
+    for (unsigned int i = 0; i < n; ++i) {
         s[i] = connection->read();
     }
     return s;
 }
 
 void
-MessageHandler::writeNum(int n)
+MessageHandler::writeNum(unsigned int n)
 {
     // TODO: static_cast
     char* nb = (char*) &n;
@@ -50,9 +50,9 @@ MessageHandler::writeNum(int n)
 void
 MessageHandler::writeString(string& s)
 {
-    int n = s.size();
+    unsigned int n = s.size();
     writeNum(n);
-    for (int i = 0; i < n; ++i) {
+    for (unsigned int i = 0; i < n; ++i) {
         connection->write(s[i]);
     }
 

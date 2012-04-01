@@ -15,8 +15,8 @@ namespace sus {
         public:
             MessageHandler(Connection* connection);
             string readString();
-            int readNum();
-            void writeNum(int n);
+            unsigned int readNum();
+            void writeNum(unsigned int n);
             void writeString(string& s);
         protected:
             Connection* connection;
