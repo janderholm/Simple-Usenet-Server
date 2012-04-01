@@ -13,6 +13,9 @@ disk:
 disktest:
 	g++ -Wall --std=c++0x disktest.cc diskdb.cc -o disktest
 
+client:
+	g++ -Wall --std=c++0x client.cc utils.cc clientserver/*.cc -o client
+
 dbtest:
 	g++ -Wall --std=c++0x dbtest.cc inmemorydb.cc -o dbtest
 	./dbtest && echo "SUCCESS!" || echo "FAIL!"
