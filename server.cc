@@ -12,7 +12,7 @@
 #include "clientserver/connectionclosedexception.h"
 #include "clientserver/protocol.h"
 
-#define TRACE_SERVER
+//#define TRACE_SERVER
 
 #ifdef TRACE_SERVER
 #define trace cerr
@@ -296,6 +296,7 @@ main(int argc, const char *argv[])
     }
 
 
+    //InMemoryDatabase db1;
     DatabaseInterface* db = new InMemoryDatabase();
     //DatabaseInterface* db = new DiskDatabase();
     char b;
@@ -335,9 +336,10 @@ main(int argc, const char *argv[])
                     case Protocol::COM_GET_ART:
                         trace << "GET_ART" << endl;
                         handle.getArt();
+                        break;
                     default:
                         cerr << "not sure what to do with: ";
-                        printf("%x\n", b);
+                        printf("%02x\n", b);
                 }
 
 
