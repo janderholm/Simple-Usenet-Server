@@ -15,6 +15,7 @@ delete [ident]                      delete newgroup or article depending on curr
 #include <string>
 #include <cstdlib>    /* for exit() and atoi() */
 #include <sstream>
+#include <limits>
 
 using namespace std;
 using namespace sus;
@@ -26,13 +27,13 @@ class ClientMessageHandler : public MessageHandler {
     public:
         ClientMessageHandler(Connection* connection);
         void listNG();
+        void createNG();
 };
 
 ClientMessageHandler::ClientMessageHandler(Connection* connection) :
     MessageHandler(connection) {}
 
 void ClientMessageHandler::listNG(){
-    cout << "listNG" << endl;
     connection->write(Protocol::COM_LIST_NG);
     connection->write(Protocol::COM_END);
     char b;
@@ -59,7 +60,6 @@ void ClientMessageHandler::listNG(){
         string name = readString();
         cout << ident << " " << name << endl; 
     }
-    cout << "listNG wait for ANS_END" << endl;
     b = connection->read();
     if(b != Protocol::ANS_END){
         cerr << "Malformed message byte: " << b << " in listNG" << endl;
@@ -67,7 +67,42 @@ void ClientMessageHandler::listNG(){
     }
 }
 
- 
+void ClientMessageHandler :: createNG() {
+    string name;
+    cout << "enter a newsgroup name: ";
+    getline (cin, name);
+    connection->write(Protocol::COM_CREATE_NG);
+    connection->write(Protocol::PAR_STRING);
+    writeString(name);
+    connection->write(Protocol::COM_END);
+    
+    char b;
+    if((b = connection->read()) != Protocol::ANS_CREATE_NG){
+        cerr << "Malformed message byte: " << b << " in createNG" << endl;
+        exit(1);
+    }
+
+    b = connection->read();
+    if(b != Protocol::ANS_NAK && b != Protocol::ANS_ACK){
+        cerr << "Malformed message byte: " << b << " in createNG" << endl;
+        exit(1);
+    }
+    
+    if(b == Protocol::ANS_NAK){
+        if((b = connection->read()) != Protocol::ERR_NG_ALREADY_EXISTS){
+            cerr << "Malformed message byte: " << b << " in createNG" << endl;
+            exit(1);
+        }
+        cerr << "Error: the newsgroup already exists" << endl;
+        return;
+    }
+
+    if((b = connection->read()) != Protocol::ANS_END){
+        cerr << "Malformed message byte: " << b << " in listNG" << endl;
+        exit(1);
+    }
+}
+
 int main(int argc, char* argv[]) {
     if (argc != 3) {
         cerr << "Usage: myclient host-name port-number" << endl;
@@ -95,6 +130,11 @@ int main(int argc, char* argv[]) {
 
             if(command == "list"){
                 handle.listNG();
+            }else if(command == "create"){
+                handle.createNG();
+            }else if(command == "exit"){
+                delete conn;
+                exit(1);
             }else{
                 cerr << "No such command exists" << endl;
                 exit(1);
