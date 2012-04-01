@@ -3,7 +3,7 @@
 #include "utils.h"
 #include "clientserver/protocol.h"
 
-#define TRACE_UTILS
+//#define TRACE_UTILS
 
 #ifdef TRACE_UTILS
 #define trace cerr
