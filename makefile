@@ -4,8 +4,8 @@ all: server
 clean:
 	$(RM) server
 
-server:
-	g++ -Wall --std=c++0x server.cc inmemorydb.cc clientserver/*.cc -o server
+server server.cc utils.cc inmemorydb.cc:
+	g++ -Wall --std=c++0x server.cc utils.cc inmemorydb.cc clientserver/*.cc -o server
 
 disk:
 	g++ -Wall --std=c++0x server.cc diskdb.cc clientserver/*.cc -o server
