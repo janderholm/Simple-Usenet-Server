@@ -61,10 +61,14 @@ main()
         cout << it->ident << " " << it->title << endl;
     }
 
-    cout << endl << "get an article" << endl;
+    bool exist = db.existsNewsgroup(2);
+    cout << endl << "Newsgroup 2 exists? should return true: " << exist << endl;
+    exist = db.existsNewsgroup(1000);
+    cout << "Newsgroup 1000 exists? should return false: " << exist << endl;
 
-    const Article* a = db.getArticle(2,1);
-    cout << a->ident << " " << a->title << " " << a->author << endl;
+    cout << endl << "get an article" << endl;
+    Article a = db.getArticle(2,1);
+    cout << a.ident << " " << a.title << " " << a.author << endl;
 
     cout << "delete all newsgroups" << endl;
     
