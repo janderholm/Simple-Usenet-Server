@@ -1,3 +1,11 @@
+/*
+list                                lists newsgorup or articles
+open   [ident]                      open a newsgroup
+close                               close current newsgroup
+read   [ident]                      prints the article
+create                              create newsgroup
+delete [ident]                      delete newgroup or article depending on current state.
+*/
 
 #include "clientserver/connection.h"
 #include "clientserver/connectionclosedexception.h"
@@ -29,23 +37,23 @@ void ClientMessageHandler::listNG(){
     connection->write(Protocol::COM_END);
     char b;
     if((b = connection->read()) != Protocol::ANS_LIST_NG){
-        cerr << "Malformed message byte: " << b << "in listNG" << endl;
+        cerr << "Malformed message byte: " << b << " in listNG" << endl;
         exit(1);
     }
     if((b = connection->read()) != Protocol::PAR_NUM){        
-        cerr << "Malformed message byte: " << b << "in listNG" << endl;
+        cerr << "Malformed message byte: " << b << " in listNG" << endl;
         exit(1);
     }
     int size = readNum();
 
     for(int i = 0; i != size; ++i){
         if((b = connection->read()) != Protocol::PAR_NUM){
-            cerr << "Malformed message byte: " << b << "in listNG" << endl;
+            cerr << "Malformed message byte: " << b << " in listNG" << endl;
             exit(1);
         }
         int ident = readNum();
         if((b = connection->read()) != Protocol::PAR_STRING){
-            cerr << "Malformed message byte: " << b << "in listNG" << endl;
+            cerr << "Malformed message byte: " << b << " in listNG" << endl;
             exit(1);
         }
         string name = readString();
@@ -54,10 +62,9 @@ void ClientMessageHandler::listNG(){
     cout << "listNG wait for ANS_END" << endl;
     b = connection->read();
     if(b != Protocol::ANS_END){
-        cerr << "Malformed message byte: " << b << "in listNG" << endl;
+        cerr << "Malformed message byte: " << b << " in listNG" << endl;
         exit(1);
     }
-
 }
 
  
