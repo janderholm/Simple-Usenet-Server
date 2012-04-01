@@ -61,7 +61,7 @@ InMemoryDatabase::existsNewsgroup(unsigned long newsIdent)
     auto it = find_if(newsgroups.begin(), newsgroups.end(),
             [&newsIdent](MemoryNewsgroup& n) { return newsIdent == n.ident; });
 
-    return it != newsgroups.begin();
+    return it != newsgroups.end();
 }
 
 vector<Article>

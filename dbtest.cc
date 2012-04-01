@@ -32,6 +32,11 @@ main()
 
     db.createNewsgroup("A");
 
+    if(db.existsNewsgroup(1000)) {
+        cout << "Nonexistand should not exist" << endl;
+        return 1;
+    }
+
     if(db.deleteNewsgroup(1000)) {
         cout << "Delete nonexistant should not be possible" << endl;
         return 1;

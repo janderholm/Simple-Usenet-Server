@@ -57,7 +57,8 @@ MessageHandler::writeNum(unsigned int n)
 
     // TODO: Portability.
     for (int i = 3; i >= 0; --i) {
-        connection->write(nb[0]);
+        trace << "write byte nb " << i << endl;
+        connection->write(nb[i]);
     }
     trace << "done" << endl;
 }

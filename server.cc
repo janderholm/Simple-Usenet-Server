@@ -70,12 +70,9 @@ ServerMessageHandler::listArt()
                 writeNum(it->ident);
                 connection->write(Protocol::PAR_STRING);
                 writeString(it->title);
-                connection->write(Protocol::PAR_STRING);
-                writeString(it->author);
-                connection->write(Protocol::PAR_STRING);
-                writeString(it->body);
-            }
+           }
         } else {
+            trace << "ng ident: " << n << "did not exist" << endl;
             connection->write(Protocol::ANS_NAK); 
             connection->write(Protocol::ERR_NG_DOES_NOT_EXIST);
         }
@@ -323,6 +320,10 @@ main(int argc, const char *argv[])
                         trace << "DELETE_NG" << endl;
                         handle.deleteNG();
                         break;
+                    case Protocol::COM_CREATE_ART:
+                        trace << "CREATE_ART" << endl;
+                        handle.createArt();
+                        break;
                     case Protocol::COM_LIST_ART:
                         trace << "LIST_ART" << endl;
                         handle.listArt();
@@ -331,9 +332,12 @@ main(int argc, const char *argv[])
                         trace << "DELETE_ART" << endl;
                         handle.deleteArt();
                         break;
+                    case Protocol::COM_GET_ART:
+                        trace << "GET_ART" << endl;
+                        handle.getArt();
                     default:
                         cerr << "not sure what to do with: ";
-                        cerr << b << endl;
+                        printf("%x\n", b);
                 }
 
 
@@ -342,6 +346,7 @@ main(int argc, const char *argv[])
                 server.deregisterConnection(connection);
                 delete connection;
                 cout << "Client closed connection" << endl;
+                break;
             }
         } else {
             server.registerConnection(new Connection);
@@ -349,5 +354,6 @@ main(int argc, const char *argv[])
         }
     }
 
+    delete db;
     return 0;
 }
