@@ -26,7 +26,7 @@ namespace sus
             bool createArticle(unsigned long newsIdent, const string& title,
                 const string& author, const string& body);
             bool deleteArticle(unsigned long newsIdent, unsigned long artIdent);
-            const Article* getArticle(unsigned long newsIdent, unsigned long artIdent);
+            Article getArticle(unsigned long newsIdent, unsigned long artIdent);
         private:
             vector<MemoryNewsgroup> newsgroups;
     };

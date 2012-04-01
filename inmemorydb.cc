@@ -118,24 +118,15 @@ InMemoryDatabase::deleteArticle(unsigned long newsIdent, unsigned long artIdent)
     return true;
 }
 
-const Article*
+Article
 InMemoryDatabase::getArticle(unsigned long newsIdent, unsigned long artIdent)
 {
     auto it = find_if(newsgroups.begin(), newsgroups.end(),
             [&newsIdent](MemoryNewsgroup& g) {return g.ident == newsIdent;});
 
-    if (it == newsgroups.end()) {
-        return nullptr;
-    }
-
     auto art = find_if(it->articles.begin(), it->articles.end(),
            [&artIdent](Article& a) {return a.ident == artIdent;});
     
-    if (art == it->articles.end()) {
-        return nullptr;
-    }
-
-    // XXX: This is so ugly i cry...
-    return &(*art);
+    return *art;
 }
 

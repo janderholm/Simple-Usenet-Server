@@ -35,6 +35,7 @@ namespace sus
             /* Delete newsgroup, return false if not exist */
             virtual bool deleteNewsgroup(unsigned long newsIdent) = 0;
 
+            /* Return true if newsgroup exist */
             virtual bool existsNewsgroup(unsigned long newsIdent) = 0;
 
             /* Return list of articles in newsgroup */
@@ -48,8 +49,8 @@ namespace sus
             /* Delete article in newsident, return false if not possible */
             virtual bool deleteArticle(unsigned long newsIdent, unsigned long artIdent) = 0;
 
-            /* Return pointer to article or null if not possible */
-            virtual const Article* getArticle(unsigned long newsIdent, unsigned long artIdent) = 0;
+            /* Return article */
+            virtual Article getArticle(unsigned long newsIdent, unsigned long artIdent) = 0;
     };
 }
 
