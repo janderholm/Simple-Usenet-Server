@@ -12,6 +12,14 @@
 #include "clientserver/connectionclosedexception.h"
 #include "clientserver/protocol.h"
 
+#define TRACE_SERVER
+
+#ifdef TRACE_SERVER
+#define trace cerr
+#else
+#define trace if(false) cerr
+#endif
+
 using namespace std;
 using namespace sus;
 using namespace client_server;
@@ -50,6 +58,7 @@ ServerMessageHandler::listArt()
     }
 
     if ((c = connection->read()) == Protocol::COM_END) {
+        connection->write(Protocol::ANS_LIST_ART);
         if (db->existsNewsgroup(n)) {
             connection->write(Protocol::ANS_ACK);
             auto arts = db->getArticles(n);
@@ -86,6 +95,7 @@ ServerMessageHandler::createArt()
     string s[3];
 
     if ((c = connection->read()) == Protocol::PAR_NUM) {
+        trace << "createArt() got num" << endl;
         n = readNum();
     } else {
         cerr << "ERR" << endl;
@@ -102,6 +112,7 @@ ServerMessageHandler::createArt()
     }
 
     if ((c = connection->read()) == Protocol::COM_END) {
+        connection->write(Protocol::ANS_CREATE_ART);
         if (db->createArticle(n, s[0], s[1], s[2])) {
             connection->write(Protocol::ANS_ACK);
         } else {
@@ -129,6 +140,7 @@ void ServerMessageHandler::deleteArt()
     }
 
     if ((c = connection->read()) == Protocol::COM_END) {
+        connection->write(Protocol::ANS_DELETE_ART);
         if(db->deleteArticle(n[0], n[1])) {
             connection->write(Protocol::ANS_ACK);
         } else {
@@ -160,6 +172,7 @@ void ServerMessageHandler::getArt()
     }
 
     if ((c = connection->read()) == Protocol::COM_END) {
+        connection->write(Protocol::ANS_GET_ART);
         if (db->existsNewsgroup(n[0])) {
             auto arts = db->getArticles(n[0]);
             auto it = find_if(arts.begin(), arts.end(),
@@ -188,22 +201,28 @@ void ServerMessageHandler::getArt()
 void
 ServerMessageHandler::listNG()
 {
+    trace << "listNG()" << endl;
     // Leave any exceptions to a higher power.
-    char b = connection->read();
-    if (b == Protocol::COM_END) {
+    char b;
+
+    if ((b = connection->read()) == Protocol::COM_END) {
+        trace << "Got message" << endl;
         auto ng = db->getNewsgroups();
         connection->write(Protocol::ANS_LIST_NG);
         connection->write(Protocol::PAR_NUM);
         writeNum(ng.size());
         for (auto it = ng.begin(); it != ng.end(); ++it) {
+            trace << "Sending ng: " << it->ident << endl;
             connection->write(Protocol::PAR_NUM);
             writeNum(it->ident);
             connection->write(Protocol::PAR_STRING);
             writeString(it->name);
         }
         connection->write(Protocol::ANS_END);
+        trace << "Done listing" << endl;
     } else {
         cerr << "Malformed message byte: " << b << "in listNG" << endl;
+        return;
     }
 }
 
@@ -214,13 +233,15 @@ ServerMessageHandler::createNG()
     char b = connection->read();
     string s;
     if (b == Protocol::PAR_STRING) {
+        trace << "createNG() got String" << endl;
         s = readString();
     } else {
         cerr << "Malformed message byte: " << b << "in createNG" << endl;
     }
 
     b = connection->read();
-    if (b == Protocol::ANS_END) {
+    if (b == Protocol::COM_END) {
+        connection->write(Protocol::ANS_CREATE_NG);
         if (db->createNewsgroup(s)) {
             connection->write(Protocol::ANS_ACK);
         } else {
@@ -245,6 +266,7 @@ ServerMessageHandler::deleteNG()
     }
 
     if ((b = connection->read()) == Protocol::COM_END) {
+        connection->write(Protocol::ANS_DELETE_NG);
         if (db->deleteNewsgroup(n)) {
             connection->write(Protocol::ANS_ACK);
         } else {
@@ -290,22 +312,28 @@ main(int argc, const char *argv[])
 
                 switch (b) {
                     case Protocol::COM_LIST_NG:
+                        trace << "LIST_NG" << endl;
                         handle.listNG();
                         break;
                     case Protocol::COM_CREATE_NG:
+                        trace << "CREATE_NG" << endl;
                         handle.createNG();
                         break;
                     case Protocol::COM_DELETE_NG:
+                        trace << "DELETE_NG" << endl;
                         handle.deleteNG();
                         break;
                     case Protocol::COM_LIST_ART:
+                        trace << "LIST_ART" << endl;
+                        handle.listArt();
                         break;
                     case Protocol::COM_DELETE_ART:
+                        trace << "DELETE_ART" << endl;
+                        handle.deleteArt();
                         break;
-                    case Protocol::COM_GET_ART:
-                        break;
-                    case Protocol::COM_END:
-                        break;
+                    default:
+                        cerr << "not sure what to do with: ";
+                        cerr << b << endl;
                 }
 
 
