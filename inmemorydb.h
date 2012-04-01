@@ -15,8 +15,13 @@ namespace sus
     {
         public:
             vector<Newsgroup> getNewsgroups();
+
             bool createNewsgroup(const string& name);
+
             bool deleteNewsgroup(unsigned long newsIdent);
+
+            bool existsNewsgroup(unsigned long newsIdent);
+
             vector<Article> getArticles(unsigned long newsIdent);
             bool createArticle(unsigned long newsIdent, const string& title,
                 const string& author, const string& body);

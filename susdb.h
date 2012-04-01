@@ -35,6 +35,8 @@ namespace sus
             /* Delete newsgroup, return false if not exist */
             virtual bool deleteNewsgroup(unsigned long newsIdent) = 0;
 
+            virtual bool existsNewsgroup(unsigned long newsIdent) = 0;
+
             /* Return list of articles in newsgroup */
             virtual vector<Article> getArticles(unsigned long newsIdent) = 0;
 

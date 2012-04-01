@@ -55,6 +55,15 @@ InMemoryDatabase::deleteNewsgroup(unsigned long newsIdent)
     return true;
 }
 
+bool
+InMemoryDatabase::existsNewsgroup(unsigned long newsIdent)
+{
+    auto it = find_if(newsgroups.begin(), newsgroups.end(),
+            [&newsIdent](MemoryNewsgroup& n) { return newsIdent == n.ident; });
+
+    return it != newsgroups.begin();
+}
+
 vector<Article>
 InMemoryDatabase::getArticles(unsigned long newsIdent)
 {
