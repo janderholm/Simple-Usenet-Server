@@ -6,11 +6,6 @@
 
 namespace sus
 {
-    class DiskNewsgroup : public Newsgroup
-    {
-        //public: vector<Article> articles;
-    };
-
     class DiskDatabase : public DatabaseInterface
     {
         public:
@@ -23,8 +18,6 @@ namespace sus
             bool deleteArticle(unsigned long newsIdent, unsigned long artIdent);
             const Article* getArticle(unsigned long newsIdent, unsigned long artIdent);
             string readFile(string file);
-        private:
-            //vector<DiskNewsgroup> newsgroups;
     };
 }
 

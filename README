@@ -8,19 +8,19 @@ The database structure:
 │   ├── 1
 │   │   ├── author
 │   │   ├── body
-│   │   └── name
+│   │   └── title
 │   ├── 2
 │   │   ├── author
 │   │   ├── body
-│   │   └── name
+│   │   └── title
 │   └── name
 └── 2
     ├── 1
     │   ├── author
     │   ├── body
-    │   └── name
+    │   └── title
     ├── 2
     │   ├── author
     │   ├── body
-    │   └── name
+    │   └── title
     └── name
