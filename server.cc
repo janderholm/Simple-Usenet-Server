@@ -19,9 +19,11 @@ using namespace protocol;
 
 class ServerMessageHandler : public MessageHandler {
     public:
-        ServerMessageHandler(Connection* connection, DatabaseInterface* db) : 
-            MessageHandler(connection,db){}
+        ServerMessageHandler(Connection* connection, DatabaseInterface* dbb) : 
+            MessageHandler(connection), db(dbb) {}
         void listNG();
+    private:
+        DatabaseInterface* db;
 };
 
 void

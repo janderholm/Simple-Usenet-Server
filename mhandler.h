@@ -19,8 +19,8 @@ using namespace protocol;
 
 class MessageHandler {
     public:
-        MessageHandler(Connection* connection, DatabaseInterface* db):
-            connection(connection), db(db) {}
+        MessageHandler(Connection* connection):
+            connection(connection){}
 
         void writeNum(int n){
             // TODO: static_cast
@@ -45,7 +45,6 @@ class MessageHandler {
         virtual void listNG() = 0;
     protected:
         Connection* connection;
-        DatabaseInterface* db;
 };
 
 #endif
