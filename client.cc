@@ -27,39 +27,29 @@ void ClientMessageHandler::listNG(){
     cout << "listNG" << endl;
     connection->write(Protocol::COM_LIST_NG);
     connection->write(Protocol::COM_END);
-    char b = connection->read();
-    if(b == Protocol::ANS_LIST_NG){
-        b = connection->read();
-        int size;
-        if(b == Protocol::PAR_NUM){
-            size = readNum();
-        }else{
+    char b;
+    if((b = connection->read()) != Protocol::ANS_LIST_NG){
+        cerr << "Malformed message byte: " << b << "in listNG" << endl;
+        exit(1);
+    }
+    if((b = connection->read()) != Protocol::PAR_NUM){        
+        cerr << "Malformed message byte: " << b << "in listNG" << endl;
+        exit(1);
+    }
+    int size = readNum();
+
+    for(int i = 0; i != size; ++i){
+        if((b = connection->read()) != Protocol::PAR_NUM){
             cerr << "Malformed message byte: " << b << "in listNG" << endl;
             exit(1);
         }
-
-        for(int i = 0; i != size; ++i){
-            b = connection->read();
-            int ident;
-            string name;
-            if(b == Protocol::PAR_NUM){
-                ident = readNum();
-            }else{
-                cerr << "Malformed message byte: " << b << "in listNG" << endl;
-                exit(1);
-            }
-            b = connection->read();
-            if(b == Protocol::PAR_STRING){
-                name = readString();
-            }else{
-                cerr << "Malformed message byte: " << b << "in listNG" << endl;
-                exit(1);
-            }
-            cout << ident << " " << name << endl; 
+        int ident = readNum();
+        if((b = connection->read()) != Protocol::PAR_STRING){
+            cerr << "Malformed message byte: " << b << "in listNG" << endl;
+            exit(1);
         }
-    }else{
-        cerr << "Malformed message byte: " << b << "in listNG" << endl;
-        exit(1);
+        string name = readString();
+        cout << ident << " " << name << endl; 
     }
     cout << "listNG wait for ANS_END" << endl;
     b = connection->read();
