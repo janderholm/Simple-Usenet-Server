@@ -8,8 +8,8 @@ using namespace std;
 using namespace sus;
 
 // TODO: A more C++ish way of doing it.
-static long newsident = 0;
-static long artident = 0;
+static int newsident = 0;
+static int artident = 0;
 
 
 
@@ -41,7 +41,7 @@ InMemoryDatabase::createNewsgroup(const string& name)
 
 
 bool
-InMemoryDatabase::deleteNewsgroup(unsigned long newsIdent)
+InMemoryDatabase::deleteNewsgroup(unsigned int newsIdent)
 {
     auto it = find_if(newsgroups.begin(), newsgroups.end(),
             [&newsIdent](MemoryNewsgroup& n) { return newsIdent == n.ident; });
@@ -56,7 +56,7 @@ InMemoryDatabase::deleteNewsgroup(unsigned long newsIdent)
 }
 
 bool
-InMemoryDatabase::existsNewsgroup(unsigned long newsIdent)
+InMemoryDatabase::existsNewsgroup(unsigned int newsIdent)
 {
     auto it = find_if(newsgroups.begin(), newsgroups.end(),
             [&newsIdent](MemoryNewsgroup& n) { return newsIdent == n.ident; });
@@ -65,7 +65,7 @@ InMemoryDatabase::existsNewsgroup(unsigned long newsIdent)
 }
 
 vector<Article>
-InMemoryDatabase::getArticles(unsigned long newsIdent)
+InMemoryDatabase::getArticles(unsigned int newsIdent)
 {
     auto it = find_if(newsgroups.begin(), newsgroups.end(),
         [&newsIdent](MemoryNewsgroup& g) {return g.ident == newsIdent;});
@@ -75,7 +75,7 @@ InMemoryDatabase::getArticles(unsigned long newsIdent)
 }
 
 bool
-InMemoryDatabase::createArticle(unsigned long newsIdent, const string& title,
+InMemoryDatabase::createArticle(unsigned int newsIdent, const string& title,
                 const string& author, const string& body)
 {   
     Article a;
@@ -97,7 +97,7 @@ InMemoryDatabase::createArticle(unsigned long newsIdent, const string& title,
 }
 
 bool
-InMemoryDatabase::deleteArticle(unsigned long newsIdent, unsigned long artIdent)
+InMemoryDatabase::deleteArticle(unsigned int newsIdent, unsigned int artIdent)
 {
 
     auto it = find_if(newsgroups.begin(), newsgroups.end(),
@@ -119,7 +119,7 @@ InMemoryDatabase::deleteArticle(unsigned long newsIdent, unsigned long artIdent)
 }
 
 Article
-InMemoryDatabase::getArticle(unsigned long newsIdent, unsigned long artIdent)
+InMemoryDatabase::getArticle(unsigned int newsIdent, unsigned int artIdent)
 {
     auto it = find_if(newsgroups.begin(), newsgroups.end(),
             [&newsIdent](MemoryNewsgroup& g) {return g.ident == newsIdent;});

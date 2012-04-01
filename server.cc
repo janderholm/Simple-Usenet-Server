@@ -53,7 +53,7 @@ ServerMessageHandler::listArt()
     if ((c = connection->read()) == Protocol::PAR_NUM) {
         n = readNum();
     } else {
-        cerr << "wrong: " << c << endl;
+        cerr << "Malformed message byte: " << hex << c << "in listArt" << endl;
         return;
     }
 
@@ -78,7 +78,7 @@ ServerMessageHandler::listArt()
         }
         connection->write(Protocol::ANS_END);
     } else {
-        cerr << "wrong byte: " << c << endl;
+        cerr << "Malformed message byte: " << hex << c << "in listArt" << endl;
     }
 
 
@@ -95,7 +95,7 @@ ServerMessageHandler::createArt()
         trace << "createArt() got num" << endl;
         n = readNum();
     } else {
-        cerr << "ERR" << endl;
+        cerr << "Malformed message byte: " << hex << c << "in createArt" << endl;
         return;
     }
 
@@ -103,7 +103,7 @@ ServerMessageHandler::createArt()
         if ((c = connection->read()) == Protocol::PAR_STRING) {
             s[i] = readString();
         } else {
-            cerr << "ERR" << endl;
+            cerr << "Malformed message byte: " << hex << c << "in createArt" << endl;
             return;
         }
     }
@@ -118,7 +118,7 @@ ServerMessageHandler::createArt()
         }
         connection->write(Protocol::ANS_END);
     } else {
-        cerr << "ERR" << endl;
+        cerr << "Malformed message byte: " << hex << c << "in createArt" << endl;
     }
 }
 
@@ -131,7 +131,7 @@ void ServerMessageHandler::deleteArt()
         if ((c = connection->read()) == Protocol::PAR_NUM) {
             n[i] = readNum();
         } else {
-            cerr << "ERR" << endl;
+            cerr << "Malformed message byte: " << hex << c << "in deleteArt" << endl;
             return;
         }
     }
@@ -150,7 +150,7 @@ void ServerMessageHandler::deleteArt()
         }
         connection->write(Protocol::ANS_END);
     } else {
-        cerr << "ERR" << endl;
+        cerr << "Malformed message byte: " << hex << c << "in deleteArt" << endl;
         return;
     }
 }
@@ -163,7 +163,7 @@ void ServerMessageHandler::getArt()
         if ((c = connection->read()) == Protocol::PAR_NUM) {
             n[i] = readNum();
         } else {
-            cerr << "ERR" << endl;
+            cerr << "Malformed message byte: " << hex << c << "in getArt" << endl;
             return;
         }
     }
@@ -191,6 +191,8 @@ void ServerMessageHandler::getArt()
             connection->write(Protocol::ERR_NG_DOES_NOT_EXIST);
         }
         connection->write(Protocol::ANS_END);
+    } else {
+        cerr << "Malformed message byte: " << hex << c << "in getArt" << endl;
     }
 }
 
@@ -218,7 +220,7 @@ ServerMessageHandler::listNG()
         connection->write(Protocol::ANS_END);
         trace << "Done listing" << endl;
     } else {
-        cerr << "Malformed message byte: " << b << "in listNG" << endl;
+        cerr << "Malformed message byte: " << hex << b << "in listNG" << endl;
         return;
     }
 }
@@ -233,7 +235,7 @@ ServerMessageHandler::createNG()
         trace << "createNG() got String" << endl;
         s = readString();
     } else {
-        cerr << "Malformed message byte: " << b << "in createNG" << endl;
+        cerr << "Malformed message byte: " << hex << b << "in createNG" << endl;
     }
 
     b = connection->read();
@@ -247,7 +249,7 @@ ServerMessageHandler::createNG()
         }
         connection->write(Protocol::ANS_END);
     } else {
-        cerr << "Malformed message byte: " << b << "in createNG" << endl;
+        cerr << "Malformed message byte: " << hex << b << "in createNG" << endl;
     }
 }
 
@@ -259,7 +261,7 @@ ServerMessageHandler::deleteNG()
     if ((b = connection->read()) == Protocol::PAR_NUM) {
         n = readNum();
     } else {
-        cerr << "Malformed message byte: " << b << "in deleteNG" << endl;
+        cerr << "Malformed message byte: " << hex << b << "in deleteNG" << endl;
     }
 
     if ((b = connection->read()) == Protocol::COM_END) {
@@ -272,7 +274,7 @@ ServerMessageHandler::deleteNG()
         }
         connection->write(Protocol::ANS_END);
     } else {
-        cerr << "BAD: " << b << "deleteNG" << endl;
+        cerr << "Malformed message byte: " << hex << b << "in deleteNG" << endl;
     }
 }
 
@@ -296,8 +298,8 @@ main(int argc, const char *argv[])
     }
 
 
-    //InMemoryDatabase db1;
-    DatabaseInterface* db = new InMemoryDatabase();
+    InMemoryDatabase db1;
+    DatabaseInterface* db = &db1; //new InMemoryDatabase();
     //DatabaseInterface* db = new DiskDatabase();
     char b;
 
@@ -356,6 +358,6 @@ main(int argc, const char *argv[])
         }
     }
 
-    delete db;
+    //delete db;
     return 0;
 }

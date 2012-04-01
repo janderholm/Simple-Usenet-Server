@@ -85,9 +85,9 @@ DiskDatabase::createNewsgroup(const string& name)
 
     //find the max ident
     //TODO perhaps it is always the first/last
-    unsigned long maxIdent = 0;
+    unsigned int maxIdent = 0;
     for(auto it = dir.begin(); it != dir.end(); ++it){
-        unsigned long ident;
+        unsigned int ident;
         istringstream(*it) >> ident;
         if(readFile(dbname + "/" + *it + "/" + "name") == name){
             return false; //already exist        
@@ -114,7 +114,7 @@ DiskDatabase::createNewsgroup(const string& name)
 
 
 bool
-DiskDatabase::deleteNewsgroup(unsigned long newsIdent)
+DiskDatabase::deleteNewsgroup(unsigned int newsIdent)
 {
     stringstream out;
     out << newsIdent;
@@ -137,7 +137,7 @@ DiskDatabase::deleteNewsgroup(unsigned long newsIdent)
 }
 
 vector<Article>
-DiskDatabase::getArticles(unsigned long newsIdent)
+DiskDatabase::getArticles(unsigned int newsIdent)
 {
     stringstream out;
     out << newsIdent;
@@ -161,7 +161,7 @@ DiskDatabase::getArticles(unsigned long newsIdent)
 }
 
 bool
-DiskDatabase::createArticle(unsigned long newsIdent, const string& title,
+DiskDatabase::createArticle(unsigned int newsIdent, const string& title,
                 const string& author, const string& body)
 {   
 
@@ -175,9 +175,9 @@ DiskDatabase::createArticle(unsigned long newsIdent, const string& title,
     Directory dir((dbname + "/" + s_newsIdent).c_str());
     //find the max ident
     //TODO perhaps it is always the first/last
-    unsigned long maxIdent = 0;
+    unsigned int maxIdent = 0;
     for(auto it = dir.begin(); it != dir.end(); ++it){
-        unsigned long ident;
+        unsigned int ident;
         istringstream(*it) >> ident;
         if(readFile(dbname + "/" + s_newsIdent + "/" +  *it + "/" + "title") == title){
             return false; //already exist        
@@ -210,7 +210,7 @@ DiskDatabase::createArticle(unsigned long newsIdent, const string& title,
 }
 
 bool
-DiskDatabase::deleteArticle(unsigned long newsIdent, unsigned long artIdent)
+DiskDatabase::deleteArticle(unsigned int newsIdent, unsigned int artIdent)
 {
     stringstream out;
     out << newsIdent;
@@ -233,7 +233,7 @@ DiskDatabase::deleteArticle(unsigned long newsIdent, unsigned long artIdent)
 }
 
 Article
-DiskDatabase::getArticle(unsigned long newsIdent, unsigned long artIdent)
+DiskDatabase::getArticle(unsigned int newsIdent, unsigned int artIdent)
 {
     stringstream out;
     out << newsIdent;
@@ -259,7 +259,7 @@ DiskDatabase::getArticle(unsigned long newsIdent, unsigned long artIdent)
 }
 
 bool
-DiskDatabase::existsNewsgroup(unsigned long newsIdent)
+DiskDatabase::existsNewsgroup(unsigned int newsIdent)
 {
     stringstream out;
     out << newsIdent;

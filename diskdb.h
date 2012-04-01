@@ -11,13 +11,13 @@ namespace sus
         public:
             vector<Newsgroup> getNewsgroups();
             bool createNewsgroup(const string& name);
-            bool deleteNewsgroup(unsigned long newsIdent);
-            vector<Article> getArticles(unsigned long newsIdent);
-            bool createArticle(unsigned long newsIdent, const string& title,
+            bool deleteNewsgroup(unsigned int newsIdent);
+            vector<Article> getArticles(unsigned int newsIdent);
+            bool createArticle(unsigned int newsIdent, const string& title,
                 const string& author, const string& body);
-            bool deleteArticle(unsigned long newsIdent, unsigned long artIdent);
-            Article getArticle(unsigned long newsIdent, unsigned long artIdent);
-            bool existsNewsgroup(unsigned long newsIdent);
+            bool deleteArticle(unsigned int newsIdent, unsigned int artIdent);
+            Article getArticle(unsigned int newsIdent, unsigned int artIdent);
+            bool existsNewsgroup(unsigned int newsIdent);
             string readFile(string file);
     };
 }
