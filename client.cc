@@ -31,10 +31,10 @@ class ClientMessageHandler : public MessageHandler {
         void createNG();
         void deleteNG(stringstream&);
         bool openNG(stringstream&,int&);
-        void listArt(int& newsIdent);
-        void createArt(int& newsIdent);
-        void deleteArt(stringstream&, int& newsIdent);
-        void readArt(stringstream&, int& newsIdent);
+        void listArt(int&);
+        void createArt(int&);
+        void deleteArt(stringstream&, int&);
+        void readArt(stringstream&, int&);
 };
 
 ClientMessageHandler::ClientMessageHandler(Connection* connection) :
