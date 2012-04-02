@@ -33,6 +33,7 @@ class ClientMessageHandler : public MessageHandler {
         bool openNG(stringstream&,int&);
         void listArt(int& newsIdent);
         void createArt(int& newsIdent);
+        void deleteArt(stringstream&, int& newsIdent);
 };
 
 ClientMessageHandler::ClientMessageHandler(Connection* connection) :
@@ -248,6 +249,50 @@ void ClientMessageHandler :: deleteNG(stringstream& ss) {
     }
 }
 
+
+void ClientMessageHandler :: deleteArt(stringstream& ss, int& newsIdent) {
+    int artIdent;
+    if(!(ss >> artIdent)){
+        cerr << "Error: Could not parse the artIdent" << endl;
+        return;
+    }
+    connection->write(Protocol::COM_DELETE_ART);
+    connection->write(Protocol::PAR_NUM);
+    writeNum(newsIdent);
+    connection->write(Protocol::PAR_NUM);
+    writeNum(artIdent);
+    connection->write(Protocol::COM_END);
+
+    char b;
+    if((b = connection->read()) != Protocol::ANS_DELETE_ART){
+        cerr << "Malformed message byte: " << b << " in deleteNG" << endl;
+        exit(1);
+    }
+
+    b = connection->read();
+    if(b != Protocol::ANS_NAK && b != Protocol::ANS_ACK){
+        cerr << "Malformed message byte: " << b << " in deleteNG" << endl;
+        exit(1);
+    }
+    
+    if(b == Protocol::ANS_NAK){
+        b = connection->read();
+        if(b == Protocol::ERR_NG_DOES_NOT_EXIST){
+            cerr << "Error: the newsgroup does not exist" << endl;
+        }else if(b == Protocol::ERR_ART_DOES_NOT_EXIST){
+            cerr << "Error: the article does not exist" << endl;
+        }else{
+            cerr << "Malformed message byte: " << b << " in deleteNG" << endl;
+            exit(1);
+        }
+    }
+
+    if((b = connection->read()) != Protocol::ANS_END){
+        cerr << "Malformed message byte: " << b << " in deleteNG" << endl;
+        exit(1);
+    }
+}
+
 bool ClientMessageHandler :: openNG(stringstream& ss, int& newsIdent) {
     if(!(ss >> newsIdent)){
         cerr << "Error: Could not parse the newsIdent" << endl;
@@ -295,7 +340,10 @@ int main(int argc, char* argv[]) {
                 else
                     handle.createNG();
             }else if(command == "delete"){
-                handle.deleteNG(ss);
+                if(inNewsgroup)
+                    handle.deleteArt(ss, newsIdent);
+                else
+                    handle.deleteNG(ss);
             }else if(command == "open"){
                 if(inNewsgroup)
                     cerr << "Error: Already in newsgroup " << newsIdent << endl;
