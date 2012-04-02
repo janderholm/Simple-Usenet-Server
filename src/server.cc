@@ -29,13 +29,13 @@ using namespace protocol;
 class ServerMessageHandler : public MessageHandler {
     public:
         ServerMessageHandler(Connection* connection, DatabaseInterface* db);
-        void listNG();
-        void createNG();
-        void deleteNG();
-        void listArt();
-        void createArt();
-        void deleteArt();
-        void getArt();
+        bool listNG();
+        bool createNG();
+        bool deleteNG();
+        bool listArt();
+        bool createArt();
+        bool deleteArt();
+        bool getArt();
     private:
         DatabaseInterface* db;
 };
@@ -44,7 +44,7 @@ class ServerMessageHandler : public MessageHandler {
 ServerMessageHandler::ServerMessageHandler(Connection* connection, DatabaseInterface* db) :
     MessageHandler(connection), db(db) {}
 
-void
+bool
 ServerMessageHandler::listArt()
 {
     char c;
@@ -54,7 +54,7 @@ ServerMessageHandler::listArt()
         n = readNum();
     } else {
         cerr << "Malformed message byte: " << hex << c << "in listArt" << endl;
-        return;
+        return true;
     }
 
     if ((c = connection->read()) == Protocol::COM_END) {
@@ -80,11 +80,10 @@ ServerMessageHandler::listArt()
     } else {
         cerr << "Malformed message byte: " << hex << c << "in listArt" << endl;
     }
-
-
+    return false;
 }
 
-void
+bool
 ServerMessageHandler::createArt()
 {
     char c;
@@ -96,7 +95,7 @@ ServerMessageHandler::createArt()
         n = readNum();
     } else {
         cerr << "Malformed message byte: " << hex << c << "in createArt" << endl;
-        return;
+        return true;
     }
 
     for (int i = 0; i < 3; ++i) {
@@ -104,7 +103,7 @@ ServerMessageHandler::createArt()
             s[i] = readString();
         } else {
             cerr << "Malformed message byte: " << hex << c << "in createArt" << endl;
-            return;
+            return true;
         }
     }
 
@@ -119,11 +118,14 @@ ServerMessageHandler::createArt()
         connection->write(Protocol::ANS_END);
     } else {
         cerr << "Malformed message byte: " << hex << c << "in createArt" << endl;
+        return true;
     }
+    return false;
 }
 
 
-void ServerMessageHandler::deleteArt()
+bool
+ServerMessageHandler::deleteArt()
 {
     char c;
     unsigned int n[2];
@@ -132,7 +134,7 @@ void ServerMessageHandler::deleteArt()
             n[i] = readNum();
         } else {
             cerr << "Malformed message byte: " << hex << c << "in deleteArt" << endl;
-            return;
+            return true;
         }
     }
 
@@ -151,11 +153,13 @@ void ServerMessageHandler::deleteArt()
         connection->write(Protocol::ANS_END);
     } else {
         cerr << "Malformed message byte: " << hex << c << "in deleteArt" << endl;
-        return;
+        return true;
     }
+    return false;
 }
 
-void ServerMessageHandler::getArt()
+bool
+ServerMessageHandler::getArt()
 {
     char c;
     unsigned int n[2];
@@ -164,7 +168,7 @@ void ServerMessageHandler::getArt()
             n[i] = readNum();
         } else {
             cerr << "Malformed message byte: " << hex << c << "in getArt" << endl;
-            return;
+            return true;
         }
     }
 
@@ -193,11 +197,13 @@ void ServerMessageHandler::getArt()
         connection->write(Protocol::ANS_END);
     } else {
         cerr << "Malformed message byte: " << hex << c << "in getArt" << endl;
+        return true;
     }
+    return false;
 }
 
 
-void
+bool
 ServerMessageHandler::listNG()
 {
     trace << "listNG()" << endl;
@@ -221,12 +227,13 @@ ServerMessageHandler::listNG()
         trace << "Done listing" << endl;
     } else {
         cerr << "Malformed message byte: " << hex << b << "in listNG" << endl;
-        return;
+        return true;
     }
+    return false;
 }
 
 
-void
+bool
 ServerMessageHandler::createNG()
 {
     char b = connection->read();
@@ -236,6 +243,7 @@ ServerMessageHandler::createNG()
         s = readString();
     } else {
         cerr << "Malformed message byte: " << hex << b << "in createNG" << endl;
+        return true;
     }
 
     b = connection->read();
@@ -250,10 +258,12 @@ ServerMessageHandler::createNG()
         connection->write(Protocol::ANS_END);
     } else {
         cerr << "Malformed message byte: " << hex << b << "in createNG" << endl;
+        return true;
     }
+    return false;
 }
 
-void
+bool
 ServerMessageHandler::deleteNG()
 {
     char b;
@@ -262,7 +272,8 @@ ServerMessageHandler::deleteNG()
         n = readNum();
     } else {
         cerr << "Malformed message byte: " << hex << b << "in deleteNG" << endl;
-        return;
+        
+        return true;
     }
 
     if ((b = connection->read()) == Protocol::COM_END) {
@@ -276,7 +287,9 @@ ServerMessageHandler::deleteNG()
         connection->write(Protocol::ANS_END);
     } else {
         cerr << "Malformed message byte: " << hex << b << "in deleteNG" << endl;
+        return true;
     }
+    return false;
 }
 
 
@@ -317,6 +330,7 @@ main(int argc, const char *argv[])
     }
 
     char b;
+    bool fail;
 
     while (true) {
         Connection* connection = server.waitForActivity();
@@ -328,35 +342,42 @@ main(int argc, const char *argv[])
                 switch (b) {
                     case Protocol::COM_LIST_NG:
                         trace << "LIST_NG" << endl;
-                        handle.listNG();
+                        fail = handle.listNG();
                         break;
                     case Protocol::COM_CREATE_NG:
                         trace << "CREATE_NG" << endl;
-                        handle.createNG();
+                        fail = handle.createNG();
                         break;
                     case Protocol::COM_DELETE_NG:
                         trace << "DELETE_NG" << endl;
-                        handle.deleteNG();
+                        fail = handle.deleteNG();
                         break;
                     case Protocol::COM_CREATE_ART:
                         trace << "CREATE_ART" << endl;
-                        handle.createArt();
+                        fail = handle.createArt();
                         break;
                     case Protocol::COM_LIST_ART:
                         trace << "LIST_ART" << endl;
-                        handle.listArt();
+                        fail = handle.listArt();
                         break;
                     case Protocol::COM_DELETE_ART:
                         trace << "DELETE_ART" << endl;
-                        handle.deleteArt();
+                        fail = handle.deleteArt();
                         break;
                     case Protocol::COM_GET_ART:
                         trace << "GET_ART" << endl;
-                        handle.getArt();
+                        fail = handle.getArt();
                         break;
                     default:
+                        fail = false;
                         cerr << "not sure what to do with: ";
                         printf("%02x\n", b);
+                }
+
+                if(fail) {
+                    server.deregisterConnection(connection);
+                    delete connection;
+                    cout << "Dropping missbehaving client" << endl;
                 }
 
             } catch (ConnectionClosedException&) {

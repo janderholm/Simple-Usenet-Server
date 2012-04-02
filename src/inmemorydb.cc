@@ -11,7 +11,7 @@ using namespace sus;
 //static int newsident = 0;
 
 
-InMemoryDatabase::InMemoryDatabase() : newsident(0) {}
+InMemoryDatabase::InMemoryDatabase() : newsident(1) {}
 
 
 vector<Newsgroup>
@@ -36,7 +36,7 @@ InMemoryDatabase::createNewsgroup(const string& name)
     MemoryNewsgroup n;
     n.name = name;
     n.ident = newsident++;
-    n.artident = 0;
+    n.artident = 1;
     newsgroups.push_back(n); 
     return true;
 }
