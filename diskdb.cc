@@ -61,19 +61,35 @@ class DirIterator {
 class Directory {
     public:
         typedef DirIterator iterator;
-        Directory(string name) : dirp(opendir(name.c_str())) {}
+
+        Directory(string path) : dirp(opendir(path.c_str())) {}
+
         ~Directory() {
             if (dirp) {
                 closedir(dirp);
             }
         }
+
+        bool exist() {
+            return dirp != nullptr;
+        }
+
         iterator begin() const { return iterator(dirp); }
+
         iterator end() const { return iterator(0); }
     private:
         DIR* dirp;
 };
 
 static string dbname = "diskdb";
+
+DiskDatabase::DiskDatabase()
+{
+    Directory d(dbname);
+    if (!d.exist()) {
+        mkdir(dbname.c_str(), 0755);
+    }
+}
 
 vector<Newsgroup>
 DiskDatabase::getNewsgroups()
@@ -126,7 +142,7 @@ DiskDatabase::createNewsgroup(const string& name)
     out << maxIdent;
     string ident = out.str();
 
-    mkdir((dbname + "/" + ident).c_str(),0777);
+    mkdir((dbname + "/" + ident).c_str(),0755);
 
     ofstream write (dbname + "/" + ident + "/name");
     write << name;
@@ -143,10 +159,12 @@ DiskDatabase::deleteNewsgroup(unsigned int newsIdent)
     out << newsIdent;
     string ident = out.str();
     
-    if(opendir((dbname + "/" + ident).c_str()) == NULL)
-        return false; //does not exist
-
     Directory newsGroups((dbname + "/" + ident));
+
+    if (!newsGroups.exist()) {
+        return false;
+    }
+
     for(auto it = newsGroups.begin(); it != newsGroups.end(); ++it){
         string artPath(dbname + "/" + ident + "/" + *it);
         remove((artPath + "/body").c_str());
@@ -154,6 +172,7 @@ DiskDatabase::deleteNewsgroup(unsigned int newsIdent)
         remove((artPath + "/title").c_str());
         rmdir(artPath.c_str());
     }
+
     remove((dbname + "/" + ident + "/name").c_str());
     rmdir((dbname + "/" + ident).c_str());
     return true;
@@ -192,19 +211,19 @@ DiskDatabase::createArticle(unsigned int newsIdent, const string& title,
     sid << newsIdent;
     string s_newsIdent = sid.str();
 
-    if(opendir((dbname + "/" + s_newsIdent).c_str()) == NULL)
-        return false; //does not exist
-
     Directory dir((dbname + "/" + s_newsIdent));
+
+    // Newsgroup does not exist.
+    if (!dir.exist()) {
+        return false;
+    }
+
     //find the max ident
     //TODO perhaps it is always the first/last
     unsigned int maxIdent = 0;
     for(auto it = dir.begin(); it != dir.end(); ++it){
         unsigned int ident;
         istringstream(*it) >> ident;
-        if(readFile(dbname + "/" + s_newsIdent + "/" +  *it + "/" + "title") == title){
-            return false; //already exist        
-        }
         if(ident > maxIdent){
             maxIdent = ident;
         }
@@ -217,7 +236,7 @@ DiskDatabase::createArticle(unsigned int newsIdent, const string& title,
     string ident = out.str();
     string artPath = dbname + "/" + s_newsIdent + "/" + ident;
 
-    mkdir(artPath.c_str(),0777);
+    mkdir(artPath.c_str(),0755);
 
     ofstream write1(artPath + "/title");
     write1 << title;
@@ -244,8 +263,14 @@ DiskDatabase::deleteArticle(unsigned int newsIdent, unsigned int artIdent)
 
     string artPath = dbname + "/" + s_newsIdent + "/" + s_artIdent;
 
-    if(opendir(artPath.c_str()) == NULL)
-        return false; //does not exist
+    Directory* d = new Directory(artPath);
+    // Newsgroup does not exist.
+    if (!d->exist()) {
+        delete d;
+        return false;
+    }
+
+    delete d;
 
     remove((artPath + "/body").c_str());
     remove((artPath + "/author").c_str());
@@ -261,9 +286,13 @@ DiskDatabase::existsNewsgroup(unsigned int newsIdent)
     stringstream out;
     out << newsIdent;
     string s_newsIdent = out.str();
-    if(opendir((dbname + "/" + s_newsIdent).c_str()) == NULL)
+    
+    Directory d(dbname + "/" + s_newsIdent);
+    if (!d.exist()) {
         return false;
-    return true;
+    } else {
+        return true;
+    }
 }
 
 string

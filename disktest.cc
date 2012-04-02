@@ -11,7 +11,6 @@ int
 main()
 {
     string dirname("diskdb"); 
-    mkdir(dirname.c_str(),0777);
 
     DiskDatabase db;
     cout << "create newsgroups" << endl;
