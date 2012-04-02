@@ -1,7 +1,7 @@
 #include <string>
 #include <iostream>
 #include "utils.h"
-#include "clientserver/protocol.h"
+#include "protocol.h"
 
 //#define TRACE_UTILS
 

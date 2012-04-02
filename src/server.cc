@@ -7,10 +7,10 @@
 #include "inmemorydb.h"
 #include "diskdb.h"
 #include "utils.h"
-#include "clientserver/server.h"
-#include "clientserver/connection.h"
-#include "clientserver/connectionclosedexception.h"
-#include "clientserver/protocol.h"
+#include "server.h"
+#include "connection.h"
+#include "connectionclosedexception.h"
+#include "protocol.h"
 
 //#define TRACE_SERVER
 
@@ -284,25 +284,31 @@ ServerMessageHandler::deleteNG()
 int
 main(int argc, const char *argv[])
 {
-    if (!(argc == 2 || argc == 3)) {
-        cerr << "Usage: " << argv[0] << " PORT [PATH]" << endl;
-        cerr << "Start server on port PORT" << endl;
-        cerr << "If PATH is set use persistant database in path" << endl;
+#ifdef DISKDB
+    if (argc != 3) {
+        cerr << "Usage: " << argv[0] << " PORT PATH" << endl;
+        cerr << "Start server on port PORT with database on PATH" << endl;
         return 1;
     }
+#else
+    if (!(argc == 2)) {
+        cerr << "Usage: " << argv[0] << " PORT" << endl;
+        cerr << "Start server on port PORT" << endl;
+        return 1;
+    }
+#endif
+
+    DatabaseInterface* db;
+#ifdef DISKDB
+    cout << "Starting persistant database in " << argv[2] << endl;
+    db = new DiskDatabase(argv[2]);
+#else
+    cout << "Starting nonpersistand database in memory" << endl;
+    db = new InMemoryDatabase();
+#endif
 
     int port;
     istringstream(argv[1]) >> port;
-
-    DatabaseInterface* db;
-    if (argc == 3) {
-        cout << "Starting persistant database in " << argv[2] << endl;
-        db = new DiskDatabase(argv[2]);
-    } else {
-        cout << "Starting nonpersistand database in memory" << endl;
-        db = new InMemoryDatabase();
-    }
-
 
     Server server(port);
     if (!server.isReady()) {

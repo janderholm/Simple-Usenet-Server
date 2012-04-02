@@ -8,9 +8,9 @@ delete [ident]                      delete newgroup or article depending on curr
 exit                                exits the client
 */
 
-#include "clientserver/connection.h"
-#include "clientserver/connectionclosedexception.h"
-#include "clientserver/protocol.h"
+#include "connection.h"
+#include "connectionclosedexception.h"
+#include "protocol.h"
 #include "utils.h"
 #include <iostream>
 #include <string>

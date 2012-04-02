@@ -3,9 +3,9 @@
 
 
 #include <string>
-#include "clientserver/server.h"
-#include "clientserver/connection.h"
-#include "clientserver/protocol.h"
+#include "server.h"
+#include "connection.h"
+#include "protocol.h"
 
 using namespace std;
 using namespace client_server;
