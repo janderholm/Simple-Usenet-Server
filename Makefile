@@ -5,23 +5,25 @@ CXXFLAGS  = -std=c++0x -pipe -O2 -Wall -W -pedantic-errors
 CXXFLAGS += -Wmissing-braces -Wparentheses -I$(CLIENTSERVERPATH)
 OBJS      = *.o client server disktest dbtest
 
+
+
 all: serverdisk servermem client
 
 clean:
 	$(RM) $(OBJS) bin/*
 
-servermem: servermem.o utils.o inmemorydb.o
+servermem: bin servermem.o utils.o inmemorydb.o
 	$(CXX) $(CXXFLAGS) servermem.o utils.o inmemorydb.o \
 	$(CLIENTSERVERPATH)/*.cc -o bin/servermem
 
-serverdisk: serverdisk.o utils.o diskdb.o
+serverdisk: bin serverdisk.o utils.o diskdb.o
 	$(CXX) $(CXXFLAGS) serverdisk.o utils.o diskdb.o \
 	$(CLIENTSERVERPATH)/*.cc -o bin/serverdisk
 
 disktest:
 	$(CXX) $(CXXFLAGS) disktest.o diskdb.o -o disktest
 
-client: client.o utils.o
+client: bin client.o utils.o
 	$(CXX) $(CXXFLAGS) client.o utils.o $(CLIENTSERVERPATH)/*.cc \
 	-o bin/client
 
@@ -48,3 +50,5 @@ inmemorydb.o: src/inmemorydb.cc
 diskdb.o: src/diskdb.cc
 	$(CXX) -c $(CXXFLAGS) src/diskdb.cc
 
+bin:
+	mkdir -p bin/
