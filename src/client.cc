@@ -383,7 +383,6 @@ int main(int argc, char* argv[]) {
     
     ClientMessageHandler handle(conn);
     cout << "Welcome, enter \"help\" without citations for list of commands" << endl;
-    //translate text into number
     string input;
     string command;
     int newsIdent;

@@ -65,17 +65,11 @@ main()
     exist = db.existsNewsgroup(1000);
     cout << "Newsgroup 1000 exists? should return false: " << exist << endl;
 
-    cout << endl << "get an article" << endl;
-    Article a = db.getArticle(2,1);
-    cout << a.ident << " " << a.title << " " << a.author << endl;
-
     cout << "delete all newsgroups" << endl;
     
     db.deleteNewsgroup(1);
     db.deleteNewsgroup(2);
     db.deleteNewsgroup(3);
-
-    //free(a);
 
     return 0;
 }

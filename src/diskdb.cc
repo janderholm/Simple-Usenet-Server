@@ -93,8 +93,6 @@ DiskDatabase::DiskDatabase(const string& dbpath) : dbpath(dbpath)
 vector<Newsgroup>
 DiskDatabase::getNewsgroups()
 {
-    // TODO: paths should atleast be global constants
-    
     trace << "getNewsgroups()" << endl;
     Directory dir(dbpath);
     vector<Newsgroup> groups;
@@ -118,11 +116,9 @@ bool
 DiskDatabase::createNewsgroup(const string& name)
 {
 
-    //TODO error handling
     Directory dir(dbpath);
 
     //find the max ident
-    //TODO perhaps it is always the first/last
     unsigned int maxIdent = 0;
     for(auto it = dir.begin(); it != dir.end(); ++it){
         unsigned int ident;
@@ -218,7 +214,6 @@ DiskDatabase::createArticle(unsigned int newsIdent, const string& title,
     }
 
     //find the max ident
-    //TODO perhaps it is always the first/last
     unsigned int maxIdent = 0;
     for(auto it = dir.begin(); it != dir.end(); ++it){
         unsigned int ident;
