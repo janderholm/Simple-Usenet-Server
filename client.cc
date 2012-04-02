@@ -32,6 +32,7 @@ class ClientMessageHandler : public MessageHandler {
         void deleteNG(stringstream&);
         bool openNG(stringstream&,int&);
         void listArt(int& newsIdent);
+        void createArt(int& newsIdent);
 };
 
 ClientMessageHandler::ClientMessageHandler(Connection* connection) :
@@ -158,7 +159,54 @@ void ClientMessageHandler :: createNG() {
     }
 
     if((b = connection->read()) != Protocol::ANS_END){
-        cerr << "Malformed message byte: " << b << " in listNG" << endl;
+        cerr << "Malformed message byte: " << b << " in createNG" << endl;
+        exit(1);
+    }
+}
+
+void ClientMessageHandler :: createArt(int& newsIdent) {
+    string title;
+    string author;
+    string body;
+    cout << "enter an article title: ";
+    getline (cin, title);
+    cout << "enter an article author: ";
+    getline (cin, author);
+    cout << "enter article text: ";
+    getline (cin, body);
+    connection->write(Protocol::COM_CREATE_ART);
+    connection->write(Protocol::PAR_NUM);
+    writeNum(newsIdent);
+    connection->write(Protocol::PAR_STRING);
+    writeString(title);
+    connection->write(Protocol::PAR_STRING);
+    writeString(body);
+    connection->write(Protocol::PAR_STRING);
+    writeString(author);
+    connection->write(Protocol::COM_END);
+    
+    char b;
+    if((b = connection->read()) != Protocol::ANS_CREATE_ART){
+        cerr << "Malformed message byte: " << b << " in createArt" << endl;
+        exit(1);
+    }
+
+    b = connection->read();
+    if((b != Protocol::ANS_NAK) && (b != Protocol::ANS_ACK)){
+        cerr << "Malformed message byte: " << b << " in createArt" << endl;
+        exit(1);
+    }
+    
+    if(b == Protocol::ANS_NAK){
+        if((b = connection->read()) != Protocol::ERR_NG_DOES_NOT_EXIST){
+            cerr << "Malformed message byte: " << b << " in createArt" << endl;
+            exit(1);
+        }
+        cerr << "Error: the newsgroup does not exists" << endl;
+    }
+    
+    if((b = connection->read()) != Protocol::ANS_END){
+        cerr << "Malformed message byte: " << b << " in createArt" << endl;
         exit(1);
     }
 }
@@ -242,7 +290,10 @@ int main(int argc, char* argv[]) {
                 else
                    handle.listNG();
             }else if(command == "create"){
-                handle.createNG();
+                if(inNewsgroup)
+                    handle.createArt(newsIdent);                   
+                else
+                    handle.createNG();
             }else if(command == "delete"){
                 handle.deleteNG(ss);
             }else if(command == "open"){
