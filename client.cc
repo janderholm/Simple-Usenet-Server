@@ -5,6 +5,7 @@ close                               close current newsgroup
 read   [ident]                      prints the article
 create                              create newsgroup
 delete [ident]                      delete newgroup or article depending on current state.
+exit                                exits the client
 */
 
 #include "clientserver/connection.h"
@@ -28,6 +29,9 @@ class ClientMessageHandler : public MessageHandler {
         ClientMessageHandler(Connection* connection);
         void listNG();
         void createNG();
+        void deleteNG(stringstream&);
+        bool openNG(stringstream&,int&);
+        void listArt(int& newsIdent);
 };
 
 ClientMessageHandler::ClientMessageHandler(Connection* connection) :
@@ -67,6 +71,60 @@ void ClientMessageHandler::listNG(){
     }
 }
 
+void ClientMessageHandler::listArt(int& newsIdent){
+    connection->write(Protocol::COM_LIST_ART);
+    connection->write(Protocol::PAR_NUM);
+    writeNum(newsIdent);
+    connection->write(Protocol::COM_END);
+
+    char b;
+    if((b = connection->read()) != Protocol::ANS_LIST_ART){
+        cerr << "Malformed message byte: " << b << " in listArt" << endl;
+        exit(1);
+    }
+    
+    b = connection->read();
+    if((b != Protocol::ANS_NAK) && (b != Protocol::ANS_ACK)){
+        cerr << "Malformed message byte: " << b << " in listArt" << endl;
+        exit(1);
+    }
+    
+    if(b == Protocol::ANS_NAK){
+        if((b = connection->read()) != Protocol::ERR_NG_DOES_NOT_EXIST){
+            cerr << "Malformed message byte: " << b << " in listArt" << endl;
+            exit(1);
+        }
+        cerr << "Error: the newsgroup does not exist" << endl;
+    }
+
+    if(b == Protocol::ANS_ACK){
+        if((b = connection->read()) != Protocol::PAR_NUM){
+                cerr << "Malformed message byte: " << b << " in listArt" << endl;
+                exit(1);
+        }
+        int size = readNum();
+        for(int i = 0; i != size; ++i){
+            if((b = connection->read()) != Protocol::PAR_NUM){
+                cerr << "Malformed message byte: " << b << " in listArt" << endl;
+                exit(1);
+            }
+            int ident = readNum();
+            if((b = connection->read()) != Protocol::PAR_STRING){
+                cerr << "Malformed message byte: " << b << " in listArt" << endl;
+                exit(1);
+            }
+            string title = readString();
+            cout << ident << " " << title << endl;
+        }
+    }
+
+    b = connection->read();
+    if(b != Protocol::ANS_END){
+        cerr << "Malformed message byte: " << b << " in listNG" << endl;
+        exit(1);
+    }
+}
+
 void ClientMessageHandler :: createNG() {
     string name;
     cout << "enter a newsgroup name: ";
@@ -83,7 +141,7 @@ void ClientMessageHandler :: createNG() {
     }
 
     b = connection->read();
-    if(b != Protocol::ANS_NAK && b != Protocol::ANS_ACK){
+    if((b != Protocol::ANS_NAK) && (b != Protocol::ANS_ACK)){
         cerr << "Malformed message byte: " << b << " in createNG" << endl;
         exit(1);
     }
@@ -94,7 +152,9 @@ void ClientMessageHandler :: createNG() {
             exit(1);
         }
         cerr << "Error: the newsgroup already exists" << endl;
-        return;
+    }
+    
+    if(b == Protocol::ANS_ACK){
     }
 
     if((b = connection->read()) != Protocol::ANS_END){
@@ -102,6 +162,52 @@ void ClientMessageHandler :: createNG() {
         exit(1);
     }
 }
+
+void ClientMessageHandler :: deleteNG(stringstream& ss) {
+    int newsIdent;
+    if(!(ss >> newsIdent)){
+        cerr << "Error: Could not parse the newsIdent" << endl;
+        return;
+    }
+    connection->write(Protocol::COM_DELETE_NG);
+    connection->write(Protocol::PAR_NUM);
+    writeNum(newsIdent);
+    connection->write(Protocol::COM_END);
+
+    char b;
+    if((b = connection->read()) != Protocol::ANS_DELETE_NG){
+        cerr << "Malformed message byte: " << b << " in deleteNG" << endl;
+        exit(1);
+    }
+
+    b = connection->read();
+    if(b != Protocol::ANS_NAK && b != Protocol::ANS_ACK){
+        cerr << "Malformed message byte: " << b << " in deleteNG" << endl;
+        exit(1);
+    }
+    
+    if(b == Protocol::ANS_NAK){
+        if((b = connection->read()) != Protocol::ERR_NG_DOES_NOT_EXIST){
+            cerr << "Malformed message byte: " << b << " in deleteNG" << endl;
+            exit(1);
+        }
+        cerr << "Error: the newsgroup does not exist" << endl;
+    }
+
+    if((b = connection->read()) != Protocol::ANS_END){
+        cerr << "Malformed message byte: " << b << " in deleteNG" << endl;
+        exit(1);
+    }
+}
+
+bool ClientMessageHandler :: openNG(stringstream& ss, int& newsIdent) {
+    if(!(ss >> newsIdent)){
+        cerr << "Error: Could not parse the newsIdent" << endl;
+        return false;
+    }
+    return true;
+}
+
 
 int main(int argc, char* argv[]) {
     if (argc != 3) {
@@ -120,6 +226,8 @@ int main(int argc, char* argv[]) {
     //translate text into number
     string input;
     string command;
+    int newsIdent;
+    bool inNewsgroup = false;
     while (true) {
         try {
             cout << "news> ";
@@ -129,15 +237,26 @@ int main(int argc, char* argv[]) {
             ss >> command;
 
             if(command == "list"){
-                handle.listNG();
+                if(inNewsgroup)
+                   handle.listArt(newsIdent);
+                else
+                   handle.listNG();
             }else if(command == "create"){
                 handle.createNG();
+            }else if(command == "delete"){
+                handle.deleteNG(ss);
+            }else if(command == "open"){
+                if(inNewsgroup)
+                    cerr << "Error: Already in newsgroup " << newsIdent << endl;
+                else
+                    inNewsgroup = handle.openNG(ss,newsIdent);
+            }else if(command == "close"){
+                inNewsgroup=false;
             }else if(command == "exit"){
                 delete conn;
                 exit(1);
             }else{
-                cerr << "No such command exists" << endl;
-                exit(1);
+                cerr << "Error: No such command exists" << endl;
             }
         }catch (ConnectionClosedException&) {
             cerr << "Server closed down!" << endl;
