@@ -10,6 +10,7 @@
 #include <sstream>
 #include<sys/stat.h>
 #include<sys/types.h>
+#include <streambuf>
 
 using namespace std;
 using namespace sus;
@@ -106,7 +107,7 @@ DiskDatabase::createNewsgroup(const string& name)
     mkdir((dbname + "/" + ident).c_str(),0777);
 
     ofstream write (dbname + "/" + ident + "/name");
-    write << name << endl;
+    write << name;
     write.close();
 
     return true;
@@ -197,11 +198,11 @@ DiskDatabase::createArticle(unsigned int newsIdent, const string& title,
     mkdir(artPath.c_str(),0777);
 
     ofstream write1(artPath + "/title");
-    write1 << title << endl;
+    write1 << title;
     ofstream write2(artPath + "/body");
-    write2 << body << endl;
+    write2 << body;
     ofstream write3(artPath + "/author");
-    write3 << author << endl;
+    write3 << author;
     write1.close();
     write2.close();
     write3.close();
@@ -272,21 +273,10 @@ DiskDatabase::existsNewsgroup(unsigned int newsIdent)
 string
 DiskDatabase::readFile(string file){
     ifstream indata;
-    string result;
-    string c;
-    indata.open(file);
-    if(!indata) { // file couldn't be opened
-      cerr << "Error: file could not be opened" << endl;
-      exit(1);
-    }
-    string line;
-    while ( indata.good() )
-    {
-        getline(indata,line);
-        result += line;
-    }
+    indata.open(file.c_str());
+    string result((istreambuf_iterator<char>(indata)),
+                     istreambuf_iterator<char>());
     indata.close();
-
     return result;
 }
  
