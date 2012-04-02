@@ -7,9 +7,6 @@
 using namespace std;
 using namespace sus;
 
-// TODO: A more C++ish way of doing it.
-//static int newsident = 0;
-
 
 InMemoryDatabase::InMemoryDatabase() : newsident(1) {}
 
@@ -24,7 +21,6 @@ InMemoryDatabase::getNewsgroups()
 bool
 InMemoryDatabase::createNewsgroup(const string& name)
 {
-    // TODO: string reference.
     auto it = find_if(newsgroups.begin(), newsgroups.end(),
         [&name](MemoryNewsgroup& n) { return name == n.name; });
 
@@ -72,8 +68,6 @@ InMemoryDatabase::getArticles(unsigned int newsIdent)
     auto it = find_if(newsgroups.begin(), newsgroups.end(),
         [&newsIdent](MemoryNewsgroup& g) {return g.ident == newsIdent;});
     return it->articles;
-
-    //TODO: We need some kind exit status here...
 }
 
 bool

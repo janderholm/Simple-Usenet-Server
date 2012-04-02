@@ -25,7 +25,7 @@ MessageHandler::readNum()
 {
     trace << "Reading number" << endl;
     unsigned int n;
-    char* nc = (char*) &n;
+    char* nc = reinterpret_cast<char*>(&n);
 
     for (int i = 3; i >= 0; --i) {
         nc[i] = connection->read();
@@ -52,10 +52,8 @@ void
 MessageHandler::writeNum(unsigned int n)
 {
     trace << "writeNum: " << n << endl;
-    // TODO: static_cast
-    char* nb = (char*) &n;
+    char* nb = reinterpret_cast<char*>(&n);
 
-    // TODO: Portability.
     for (int i = 3; i >= 0; --i) {
         trace << "write byte nb " << i << endl;
         connection->write(nb[i]);

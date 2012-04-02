@@ -24,7 +24,6 @@ namespace sus
     class DatabaseInterface
     {
         public:
-            // TODO: Consider returning dummy object with begin, end iterators.
             virtual ~DatabaseInterface() {}
 
             /* Return list of newsgroups */
