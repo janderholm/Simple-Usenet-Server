@@ -351,7 +351,7 @@ main(int argc, const char *argv[])
                 server.deregisterConnection(connection);
                 delete connection;
                 cout << "Client closed connection" << endl;
-                //break;
+         break;
             }
         } else {
             server.registerConnection(new Connection);

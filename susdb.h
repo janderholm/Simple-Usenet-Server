@@ -49,9 +49,6 @@ namespace sus
 
             /* Delete article in newsident, return false if not possible */
             virtual bool deleteArticle(unsigned int newsIdent, unsigned int artIdent) = 0;
-
-            /* Return article */
-            virtual Article getArticle(unsigned int newsIdent, unsigned int artIdent) = 0;
     };
 }
 

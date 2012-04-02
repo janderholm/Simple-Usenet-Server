@@ -119,15 +119,3 @@ InMemoryDatabase::deleteArticle(unsigned int newsIdent, unsigned int artIdent)
     return true;
 }
 
-Article
-InMemoryDatabase::getArticle(unsigned int newsIdent, unsigned int artIdent)
-{
-    auto it = find_if(newsgroups.begin(), newsgroups.end(),
-            [&newsIdent](MemoryNewsgroup& g) {return g.ident == newsIdent;});
-
-    auto art = find_if(it->articles.begin(), it->articles.end(),
-           [&artIdent](Article& a) {return a.ident == artIdent;});
-    
-    return *art;
-}
-
