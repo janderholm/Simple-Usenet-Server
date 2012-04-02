@@ -298,7 +298,7 @@ main(int argc, const char *argv[])
     }
 
     DatabaseInterface* db;
-    if (true) {
+    if (false) {
         db = new InMemoryDatabase();
     } else {
         db = new DiskDatabase();

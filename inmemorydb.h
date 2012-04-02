@@ -8,12 +8,16 @@ namespace sus
 {
     class MemoryNewsgroup : public Newsgroup
     {
-        public: vector<Article> articles;
+        public:
+            vector<Article> articles;
+            unsigned int artident;
     };
 
     class InMemoryDatabase : public DatabaseInterface
     {
         public:
+            InMemoryDatabase();
+
             vector<Newsgroup> getNewsgroups();
 
             bool createNewsgroup(const string& name);
@@ -29,6 +33,7 @@ namespace sus
             Article getArticle(unsigned int newsIdent, unsigned int artIdent);
         private:
             vector<MemoryNewsgroup> newsgroups;
+            unsigned int newsident;
     };
 }
 

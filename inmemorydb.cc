@@ -8,9 +8,10 @@ using namespace std;
 using namespace sus;
 
 // TODO: A more C++ish way of doing it.
-static int newsident = 0;
-static int artident = 0;
+//static int newsident = 0;
 
+
+InMemoryDatabase::InMemoryDatabase() : newsident(0) {}
 
 
 vector<Newsgroup>
@@ -35,6 +36,7 @@ InMemoryDatabase::createNewsgroup(const string& name)
     MemoryNewsgroup n;
     n.name = name;
     n.ident = newsident++;
+    n.artident = 0;
     newsgroups.push_back(n); 
     return true;
 }
@@ -78,19 +80,18 @@ bool
 InMemoryDatabase::createArticle(unsigned int newsIdent, const string& title,
                 const string& author, const string& body)
 {   
-    Article a;
-    a.title = title;
-    a.author = author;
-    a.body = body;
-    a.ident = artident;
-    artident += 1;
-
-    auto it = find_if(newsgroups.begin(), newsgroups.end(),
+     auto it = find_if(newsgroups.begin(), newsgroups.end(),
             [&newsIdent](MemoryNewsgroup& g) {return g.ident == newsIdent;});
 
     if (it == newsgroups.end()) {
         return false;
     }
+
+    Article a;
+    a.title = title;
+    a.author = author;
+    a.body = body;
+    a.ident = it->artident++;
 
     it->articles.push_back(a);
     return true;
