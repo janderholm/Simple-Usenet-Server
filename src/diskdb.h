@@ -6,29 +6,29 @@
 
 namespace sus
 {
-    class DiskDatabase : public DatabaseInterface
-    {
-        public:
-            DiskDatabase(const string& path);
-            vector<Newsgroup> getNewsgroups();
+class DiskDatabase : public DatabaseInterface
+{
+public:
+    DiskDatabase(const string& path);
+    vector<Newsgroup> getNewsgroups();
 
-            bool createNewsgroup(const string& name);
+    bool createNewsgroup(const string& name);
 
-            bool deleteNewsgroup(unsigned int newsIdent);
+    bool deleteNewsgroup(unsigned int newsIdent);
 
-            vector<Article> getArticles(unsigned int newsIdent);
+    vector<Article> getArticles(unsigned int newsIdent);
 
-            bool createArticle(unsigned int newsIdent, const string& title,
-                const string& author, const string& body);
+    bool createArticle(unsigned int newsIdent, const string& title,
+                       const string& author, const string& body);
 
-            bool deleteArticle(unsigned int newsIdent, unsigned int artIdent);
+    bool deleteArticle(unsigned int newsIdent, unsigned int artIdent);
 
-            bool existsNewsgroup(unsigned int newsIdent);
+    bool existsNewsgroup(unsigned int newsIdent);
 
-            string readFile(string file);
-        private:
-            string dbpath;
-    };
+    string readFile(string file);
+private:
+    string dbpath;
+};
 }
 
 #endif

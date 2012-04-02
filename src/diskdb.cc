@@ -5,7 +5,7 @@
 #include <vector>
 #include <dirent.h>
 #include <string.h>
-#include <iostream> 
+#include <iostream>
 #include <fstream>
 #include <sstream>
 #include <sys/stat.h>
@@ -23,62 +23,70 @@
 using namespace std;
 using namespace sus;
 
-class DirIterator {
-    public:
-        DirIterator(DIR* dirp) : dirp(dirp), entry(0) {
-            trace << "opened dir: " << (long) dirp << endl;
-            if (dirp) {
-                operator++();
-            } 
+class DirIterator
+{
+public:
+    DirIterator(DIR* dirp) : dirp(dirp), entry(0) {
+        trace << "opened dir: " << (long) dirp << endl;
+        if (dirp) {
+            operator++();
         }
+    }
 
-        string operator*() const { return entry->d_name; }
+    string operator*() const {
+        return entry->d_name;
+    }
 
-        DirIterator& operator++() {
-            // Ignore uninteresting files.
-            do {
-                entry = readdir(dirp);
-            } while (entry &&
-                     (!strcmp(entry->d_name, ".")  ||
-                      !strcmp(entry->d_name, "..") ||
-                      !strcmp(entry->d_name, "name")
-                     )
-                    );
+    DirIterator& operator++() {
+        // Ignore uninteresting files.
+        do {
+            entry = readdir(dirp);
+        } while (entry &&
+                 (!strcmp(entry->d_name, ".")  ||
+                  !strcmp(entry->d_name, "..") ||
+                  !strcmp(entry->d_name, "name")
+                 )
+                );
 
-            return *this;
-        }
+        return *this;
+    }
 
-        bool operator!=(const DirIterator& rhs) {
-            trace << "comparing: " << entry << " - " << rhs.entry << endl;
-            return entry != rhs.entry;
-        }
+    bool operator!=(const DirIterator& rhs) {
+        trace << "comparing: " << entry << " - " << rhs.entry << endl;
+        return entry != rhs.entry;
+    }
 
-    private:
-        DIR* dirp;
-        dirent* entry;
+private:
+    DIR* dirp;
+    dirent* entry;
 };
 
-class Directory {
-    public:
-        typedef DirIterator iterator;
+class Directory
+{
+public:
+    typedef DirIterator iterator;
 
-        Directory(string path) : dirp(opendir(path.c_str())) {}
+    Directory(string path) : dirp(opendir(path.c_str())) {}
 
-        ~Directory() {
-            if (dirp) {
-                closedir(dirp);
-            }
+    ~Directory() {
+        if (dirp) {
+            closedir(dirp);
         }
+    }
 
-        bool exist() {
-            return dirp != nullptr;
-        }
+    bool exist() {
+        return dirp != nullptr;
+    }
 
-        iterator begin() const { return iterator(dirp); }
+    iterator begin() const {
+        return iterator(dirp);
+    }
 
-        iterator end() const { return iterator(0); }
-    private:
-        DIR* dirp;
+    iterator end() const {
+        return iterator(0);
+    }
+private:
+    DIR* dirp;
 };
 
 
@@ -97,7 +105,7 @@ DiskDatabase::getNewsgroups()
     Directory dir(dbpath);
     vector<Newsgroup> groups;
     trace << "Found: " << endl;
-    for(auto it = dir.begin(); it != dir.end(); ++it){
+    for (auto it = dir.begin(); it != dir.end(); ++it) {
         Newsgroup n;
         n.name = readFile(dbpath + "/" + *it + "/" + "name");
         istringstream(*it) >> n.ident;
@@ -105,7 +113,9 @@ DiskDatabase::getNewsgroups()
         trace << n.ident << " --  " << n.name << endl;
     }
     sort(groups.begin(),groups.end(),
-        [](const Newsgroup& a,const Newsgroup& b) {return a.ident < b.ident;});
+    [](const Newsgroup& a,const Newsgroup& b) {
+        return a.ident < b.ident;
+    });
 
     trace << "done" << endl;
     return groups;
@@ -120,13 +130,13 @@ DiskDatabase::createNewsgroup(const string& name)
 
     //find the max ident
     unsigned int maxIdent = 0;
-    for(auto it = dir.begin(); it != dir.end(); ++it){
+    for (auto it = dir.begin(); it != dir.end(); ++it) {
         unsigned int ident;
         istringstream(*it) >> ident;
-        if(readFile(dbpath + "/" + *it + "/" + "name") == name){
-            return false; //already exist        
+        if (readFile(dbpath + "/" + *it + "/" + "name") == name) {
+            return false; //already exist
         }
-        if(ident > maxIdent){
+        if (ident > maxIdent) {
             maxIdent = ident;
         }
     }
@@ -153,14 +163,14 @@ DiskDatabase::deleteNewsgroup(unsigned int newsIdent)
     stringstream out;
     out << newsIdent;
     string ident = out.str();
-    
+
     Directory newsGroups((dbpath + "/" + ident));
 
     if (!newsGroups.exist()) {
         return false;
     }
 
-    for(auto it = newsGroups.begin(); it != newsGroups.end(); ++it){
+    for (auto it = newsGroups.begin(); it != newsGroups.end(); ++it) {
         string artPath(dbpath + "/" + ident + "/" + *it);
         remove((artPath + "/body").c_str());
         remove((artPath + "/author").c_str());
@@ -182,7 +192,7 @@ DiskDatabase::getArticles(unsigned int newsIdent)
     vector<Article> articles;
 
     Directory dir((dbpath + "/" + ident));
-    for(auto it = dir.begin(); it != dir.end(); ++it){
+    for (auto it = dir.begin(); it != dir.end(); ++it) {
         Article a;
         string artPath = dbpath + "/" + ident + "/" + *it;
         a.title = readFile(artPath + "/title");
@@ -192,15 +202,17 @@ DiskDatabase::getArticles(unsigned int newsIdent)
         articles.push_back(a);
     }
     sort(articles.begin(),articles.end(),
-        [](const Article& a,const Article& b) {return a.ident < b.ident;});
+    [](const Article& a,const Article& b) {
+        return a.ident < b.ident;
+    });
 
     return articles;
 }
 
 bool
 DiskDatabase::createArticle(unsigned int newsIdent, const string& title,
-                const string& author, const string& body)
-{   
+                            const string& author, const string& body)
+{
 
     stringstream sid;
     sid << newsIdent;
@@ -215,10 +227,10 @@ DiskDatabase::createArticle(unsigned int newsIdent, const string& title,
 
     //find the max ident
     unsigned int maxIdent = 0;
-    for(auto it = dir.begin(); it != dir.end(); ++it){
+    for (auto it = dir.begin(); it != dir.end(); ++it) {
         unsigned int ident;
         istringstream(*it) >> ident;
-        if(ident > maxIdent){
+        if (ident > maxIdent) {
             maxIdent = ident;
         }
     }
@@ -280,7 +292,7 @@ DiskDatabase::existsNewsgroup(unsigned int newsIdent)
     stringstream out;
     out << newsIdent;
     string s_newsIdent = out.str();
-    
+
     Directory d(dbpath + "/" + s_newsIdent);
     if (!d.exist()) {
         return false;
@@ -290,12 +302,13 @@ DiskDatabase::existsNewsgroup(unsigned int newsIdent)
 }
 
 string
-DiskDatabase::readFile(string file){
+DiskDatabase::readFile(string file)
+{
     ifstream indata;
     indata.open(file.c_str());
     string result((istreambuf_iterator<char>(indata)),
-                     istreambuf_iterator<char>());
+                  istreambuf_iterator<char>());
     indata.close();
     return result;
 }
- 
+

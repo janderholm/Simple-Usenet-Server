@@ -10,7 +10,7 @@ using namespace sus;
 int
 main()
 {
-    string dirname("diskdb"); 
+    string dirname("diskdb");
 
     DiskDatabase db;
     cout << "create newsgroups" << endl;
@@ -22,41 +22,41 @@ main()
     cout << endl <<  "print newsgroups" << endl;
 
     vector<Newsgroup> vec = db.getNewsgroups();
-    for(auto it = vec.begin(); it != vec.end(); ++it){
+    for(auto it = vec.begin(); it != vec.end(); ++it) {
         cout << it->ident << " " << it->name << endl;
     }
 
     cout << endl << "create articles" << endl;
 
     db.createArticle(1, "first article",
-                "author", "body");
+                     "author", "body");
     db.createArticle(1, "second article",
-                "author", "body");
+                     "author", "body");
     db.createArticle(2, "first article",
-                "author", "body");
+                     "author", "body");
     db.createArticle(2, "second article",
-                "author", "body");
+                     "author", "body");
     db.createArticle(3, "first article",
-                "author", "body");
+                     "author", "body");
     db.createArticle(3, "second article",
-                "author", "body");
+                     "author", "body");
 
     cout << "print articles" << endl;
     cout << endl << "group 1" << endl;
     vector<Article> vec1 = db.getArticles(1);
-    for(auto it = vec1.begin(); it != vec1.end(); ++it){
+    for(auto it = vec1.begin(); it != vec1.end(); ++it) {
         cout << it->ident << " " << it->title << endl;
     }
-    
+
     cout << endl << "group 2" << endl;
     vec1 = db.getArticles(2);
-    for(auto it = vec1.begin(); it != vec1.end(); ++it){
+    for(auto it = vec1.begin(); it != vec1.end(); ++it) {
         cout << it->ident << " " << it->title << endl;
     }
 
     cout << endl << "group 3" << endl;
     vec1 = db.getArticles(3);
-    for(auto it = vec1.begin(); it != vec1.end(); ++it){
+    for(auto it = vec1.begin(); it != vec1.end(); ++it) {
         cout << it->ident << " " << it->title << endl;
     }
 
@@ -66,7 +66,7 @@ main()
     cout << "Newsgroup 1000 exists? should return false: " << exist << endl;
 
     cout << "delete all newsgroups" << endl;
-    
+
     db.deleteNewsgroup(1);
     db.deleteNewsgroup(2);
     db.deleteNewsgroup(3);

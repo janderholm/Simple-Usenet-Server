@@ -26,18 +26,19 @@ using namespace client_server;
 using namespace protocol;
 
 
-class ServerMessageHandler : public MessageHandler {
-    public:
-        ServerMessageHandler(Connection* connection, DatabaseInterface* db);
-        bool listNG();
-        bool createNG();
-        bool deleteNG();
-        bool listArt();
-        bool createArt();
-        bool deleteArt();
-        bool getArt();
-    private:
-        DatabaseInterface* db;
+class ServerMessageHandler : public MessageHandler
+{
+public:
+    ServerMessageHandler(Connection* connection, DatabaseInterface* db);
+    bool listNG();
+    bool createNG();
+    bool deleteNG();
+    bool listArt();
+    bool createArt();
+    bool deleteArt();
+    bool getArt();
+private:
+    DatabaseInterface* db;
 };
 
 
@@ -70,10 +71,10 @@ ServerMessageHandler::listArt()
                 writeNum(it->ident);
                 connection->write(Protocol::PAR_STRING);
                 writeString(it->title);
-           }
+            }
         } else {
             trace << "ng ident: " << n << "did not exist" << endl;
-            connection->write(Protocol::ANS_NAK); 
+            connection->write(Protocol::ANS_NAK);
             connection->write(Protocol::ERR_NG_DOES_NOT_EXIST);
         }
         connection->write(Protocol::ANS_END);
@@ -177,7 +178,9 @@ ServerMessageHandler::getArt()
         if (db->existsNewsgroup(n[0])) {
             auto arts = db->getArticles(n[0]);
             auto it = find_if(arts.begin(), arts.end(),
-                    [&n](Article& a) {return a.ident == n[1];});
+            [&n](Article& a) {
+                return a.ident == n[1];
+            });
             if (it != arts.end()) {
                 connection->write(Protocol::ANS_ACK);
                 connection->write(Protocol::PAR_STRING);
@@ -272,7 +275,7 @@ ServerMessageHandler::deleteNG()
         n = readNum();
     } else {
         cerr << "Malformed message byte: " << hex << b << "in deleteNG" << endl;
-        
+
         return true;
     }
 
@@ -340,38 +343,38 @@ main(int argc, const char *argv[])
                 b = connection->read();
 
                 switch (b) {
-                    case Protocol::COM_LIST_NG:
-                        trace << "LIST_NG" << endl;
-                        fail = handle.listNG();
-                        break;
-                    case Protocol::COM_CREATE_NG:
-                        trace << "CREATE_NG" << endl;
-                        fail = handle.createNG();
-                        break;
-                    case Protocol::COM_DELETE_NG:
-                        trace << "DELETE_NG" << endl;
-                        fail = handle.deleteNG();
-                        break;
-                    case Protocol::COM_CREATE_ART:
-                        trace << "CREATE_ART" << endl;
-                        fail = handle.createArt();
-                        break;
-                    case Protocol::COM_LIST_ART:
-                        trace << "LIST_ART" << endl;
-                        fail = handle.listArt();
-                        break;
-                    case Protocol::COM_DELETE_ART:
-                        trace << "DELETE_ART" << endl;
-                        fail = handle.deleteArt();
-                        break;
-                    case Protocol::COM_GET_ART:
-                        trace << "GET_ART" << endl;
-                        fail = handle.getArt();
-                        break;
-                    default:
-                        fail = false;
-                        cerr << "not sure what to do with: ";
-                        printf("%02x\n", b);
+                case Protocol::COM_LIST_NG:
+                    trace << "LIST_NG" << endl;
+                    fail = handle.listNG();
+                    break;
+                case Protocol::COM_CREATE_NG:
+                    trace << "CREATE_NG" << endl;
+                    fail = handle.createNG();
+                    break;
+                case Protocol::COM_DELETE_NG:
+                    trace << "DELETE_NG" << endl;
+                    fail = handle.deleteNG();
+                    break;
+                case Protocol::COM_CREATE_ART:
+                    trace << "CREATE_ART" << endl;
+                    fail = handle.createArt();
+                    break;
+                case Protocol::COM_LIST_ART:
+                    trace << "LIST_ART" << endl;
+                    fail = handle.listArt();
+                    break;
+                case Protocol::COM_DELETE_ART:
+                    trace << "DELETE_ART" << endl;
+                    fail = handle.deleteArt();
+                    break;
+                case Protocol::COM_GET_ART:
+                    trace << "GET_ART" << endl;
+                    fail = handle.getArt();
+                    break;
+                default:
+                    fail = false;
+                    cerr << "not sure what to do with: ";
+                    printf("%02x\n", b);
                 }
 
                 if(fail) {

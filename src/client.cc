@@ -24,95 +24,98 @@ using namespace client_server;
 using namespace protocol;
 
 
-class ClientMessageHandler : public MessageHandler {
-    public:
-        ClientMessageHandler(Connection* connection);
-        void listNG();
-        void createNG();
-        void deleteNG(stringstream&);
-        bool openNG(stringstream&,int&);
-        void listArt(int&);
-        void createArt(int&);
-        void deleteArt(stringstream&, int&);
-        void readArt(stringstream&, int&);
+class ClientMessageHandler : public MessageHandler
+{
+public:
+    ClientMessageHandler(Connection* connection);
+    void listNG();
+    void createNG();
+    void deleteNG(stringstream&);
+    bool openNG(stringstream&,int&);
+    void listArt(int&);
+    void createArt(int&);
+    void deleteArt(stringstream&, int&);
+    void readArt(stringstream&, int&);
 };
 
 ClientMessageHandler::ClientMessageHandler(Connection* connection) :
     MessageHandler(connection) {}
 
-void ClientMessageHandler::listNG(){
+void ClientMessageHandler::listNG()
+{
     connection->write(Protocol::COM_LIST_NG);
     connection->write(Protocol::COM_END);
     char b;
-    if((b = connection->read()) != Protocol::ANS_LIST_NG){
+    if((b = connection->read()) != Protocol::ANS_LIST_NG) {
         cerr << "Malformed message byte: " << hex << b << " in listNG" << endl;
         exit(1);
     }
-    if((b = connection->read()) != Protocol::PAR_NUM){        
+    if((b = connection->read()) != Protocol::PAR_NUM) {
         cerr << "Malformed message byte: " << hex << b << " in listNG" << endl;
         exit(1);
     }
     int size = readNum();
 
-    for(int i = 0; i != size; ++i){
-        if((b = connection->read()) != Protocol::PAR_NUM){
+    for(int i = 0; i != size; ++i) {
+        if((b = connection->read()) != Protocol::PAR_NUM) {
             cerr << "Malformed message byte: " << hex << b << " in listNG" << endl;
             exit(1);
         }
         int ident = readNum();
-        if((b = connection->read()) != Protocol::PAR_STRING){
+        if((b = connection->read()) != Protocol::PAR_STRING) {
             cerr << "Malformed message byte: " << hex << b << " in listNG" << endl;
             exit(1);
         }
         string name = readString();
-        cout << ident << " " << name << endl; 
+        cout << ident << " " << name << endl;
     }
     b = connection->read();
-    if(b != Protocol::ANS_END){
+    if(b != Protocol::ANS_END) {
         cerr << "Malformed message byte: " << hex << b << " in listNG" << endl;
         exit(1);
     }
 }
 
-void ClientMessageHandler::listArt(int& newsIdent){
+void ClientMessageHandler::listArt(int& newsIdent)
+{
     connection->write(Protocol::COM_LIST_ART);
     connection->write(Protocol::PAR_NUM);
     writeNum(newsIdent);
     connection->write(Protocol::COM_END);
 
     char b;
-    if((b = connection->read()) != Protocol::ANS_LIST_ART){
+    if((b = connection->read()) != Protocol::ANS_LIST_ART) {
         cerr << "Malformed message byte: " << hex << b << " in listArt" << endl;
         exit(1);
     }
-    
+
     b = connection->read();
-    if((b != Protocol::ANS_NAK) && (b != Protocol::ANS_ACK)){
+    if((b != Protocol::ANS_NAK) && (b != Protocol::ANS_ACK)) {
         cerr << "Malformed message byte: " << hex << b << " in listArt" << endl;
         exit(1);
     }
-    
-    if(b == Protocol::ANS_NAK){
-        if((b = connection->read()) != Protocol::ERR_NG_DOES_NOT_EXIST){
+
+    if(b == Protocol::ANS_NAK) {
+        if((b = connection->read()) != Protocol::ERR_NG_DOES_NOT_EXIST) {
             cerr << "Malformed message byte: " << hex << b << " in listArt" << endl;
             exit(1);
         }
         cerr << "Error: the newsgroup does not exist" << endl;
     }
 
-    if(b == Protocol::ANS_ACK){
-        if((b = connection->read()) != Protocol::PAR_NUM){
-                cerr << "Malformed message byte: " << hex << b << " in listArt" << endl;
-                exit(1);
+    if(b == Protocol::ANS_ACK) {
+        if((b = connection->read()) != Protocol::PAR_NUM) {
+            cerr << "Malformed message byte: " << hex << b << " in listArt" << endl;
+            exit(1);
         }
         int size = readNum();
-        for(int i = 0; i != size; ++i){
-            if((b = connection->read()) != Protocol::PAR_NUM){
+        for(int i = 0; i != size; ++i) {
+            if((b = connection->read()) != Protocol::PAR_NUM) {
                 cerr << "Malformed message byte: " << hex << b << " in listArt" << endl;
                 exit(1);
             }
             int ident = readNum();
-            if((b = connection->read()) != Protocol::PAR_STRING){
+            if((b = connection->read()) != Protocol::PAR_STRING) {
                 cerr << "Malformed message byte: " << hex << b << " in listArt" << endl;
                 exit(1);
             }
@@ -122,13 +125,14 @@ void ClientMessageHandler::listArt(int& newsIdent){
     }
 
     b = connection->read();
-    if(b != Protocol::ANS_END){
+    if(b != Protocol::ANS_END) {
         cerr << "Malformed message byte: " << hex << b << " in listNG" << endl;
         exit(1);
     }
 }
 
-void ClientMessageHandler :: createNG() {
+void ClientMessageHandler :: createNG()
+{
     string name;
     cout << "enter a newsgroup name: ";
     getline (cin, name);
@@ -136,37 +140,38 @@ void ClientMessageHandler :: createNG() {
     connection->write(Protocol::PAR_STRING);
     writeString(name);
     connection->write(Protocol::COM_END);
-    
+
     char b;
-    if((b = connection->read()) != Protocol::ANS_CREATE_NG){
+    if((b = connection->read()) != Protocol::ANS_CREATE_NG) {
         cerr << "Malformed message byte: " << hex << b << " in createNG" << endl;
         exit(1);
     }
 
     b = connection->read();
-    if((b != Protocol::ANS_NAK) && (b != Protocol::ANS_ACK)){
+    if((b != Protocol::ANS_NAK) && (b != Protocol::ANS_ACK)) {
         cerr << "Malformed message byte: " << hex << b << " in createNG" << endl;
         exit(1);
     }
-    
-    if(b == Protocol::ANS_NAK){
-        if((b = connection->read()) != Protocol::ERR_NG_ALREADY_EXISTS){
+
+    if(b == Protocol::ANS_NAK) {
+        if((b = connection->read()) != Protocol::ERR_NG_ALREADY_EXISTS) {
             cerr << "Malformed message byte: " << hex << b << " in createNG" << endl;
             exit(1);
         }
         cerr << "Error: the newsgroup already exists" << endl;
     }
-    
-    if(b == Protocol::ANS_ACK){
+
+    if(b == Protocol::ANS_ACK) {
     }
 
-    if((b = connection->read()) != Protocol::ANS_END){
+    if((b = connection->read()) != Protocol::ANS_END) {
         cerr << "Malformed message byte: " << hex << b << " in createNG" << endl;
         exit(1);
     }
 }
 
-void ClientMessageHandler :: createArt(int& newsIdent) {
+void ClientMessageHandler :: createArt(int& newsIdent)
+{
     string title;
     string author;
     string body;
@@ -186,36 +191,37 @@ void ClientMessageHandler :: createArt(int& newsIdent) {
     connection->write(Protocol::PAR_STRING);
     writeString(author);
     connection->write(Protocol::COM_END);
-    
+
     char b;
-    if((b = connection->read()) != Protocol::ANS_CREATE_ART){
+    if((b = connection->read()) != Protocol::ANS_CREATE_ART) {
         cerr << "Malformed message byte: " << hex << b << " in createArt" << endl;
         exit(1);
     }
 
     b = connection->read();
-    if((b != Protocol::ANS_NAK) && (b != Protocol::ANS_ACK)){
+    if((b != Protocol::ANS_NAK) && (b != Protocol::ANS_ACK)) {
         cerr << "Malformed message byte: " << hex << b << " in createArt" << endl;
         exit(1);
     }
-    
-    if(b == Protocol::ANS_NAK){
-        if((b = connection->read()) != Protocol::ERR_NG_DOES_NOT_EXIST){
+
+    if(b == Protocol::ANS_NAK) {
+        if((b = connection->read()) != Protocol::ERR_NG_DOES_NOT_EXIST) {
             cerr << "Malformed message byte: " << hex << b << " in createArt" << endl;
             exit(1);
         }
         cerr << "Error: the newsgroup does not exists" << endl;
     }
-    
-    if((b = connection->read()) != Protocol::ANS_END){
+
+    if((b = connection->read()) != Protocol::ANS_END) {
         cerr << "Malformed message byte: " << hex << b << " in createArt" << endl;
         exit(1);
     }
 }
 
-void ClientMessageHandler :: deleteNG(stringstream& ss) {
+void ClientMessageHandler :: deleteNG(stringstream& ss)
+{
     int newsIdent;
-    if(!(ss >> newsIdent)){
+    if(!(ss >> newsIdent)) {
         cerr << "Error: Could not parse the newsIdent" << endl;
         return;
     }
@@ -225,35 +231,36 @@ void ClientMessageHandler :: deleteNG(stringstream& ss) {
     connection->write(Protocol::COM_END);
 
     char b;
-    if((b = connection->read()) != Protocol::ANS_DELETE_NG){
+    if((b = connection->read()) != Protocol::ANS_DELETE_NG) {
         cerr << "Malformed message byte: " << hex << b << " in deleteNG" << endl;
         exit(1);
     }
 
     b = connection->read();
-    if(b != Protocol::ANS_NAK && b != Protocol::ANS_ACK){
+    if(b != Protocol::ANS_NAK && b != Protocol::ANS_ACK) {
         cerr << "Malformed message byte: " << hex << b << " in deleteNG" << endl;
         exit(1);
     }
-    
-    if(b == Protocol::ANS_NAK){
-        if((b = connection->read()) != Protocol::ERR_NG_DOES_NOT_EXIST){
+
+    if(b == Protocol::ANS_NAK) {
+        if((b = connection->read()) != Protocol::ERR_NG_DOES_NOT_EXIST) {
             cerr << "Malformed message byte: " << hex << b << " in deleteNG" << endl;
             exit(1);
         }
         cerr << "Error: the newsgroup does not exist" << endl;
     }
 
-    if((b = connection->read()) != Protocol::ANS_END){
+    if((b = connection->read()) != Protocol::ANS_END) {
         cerr << "Malformed message byte: " << hex << b << " in deleteNG" << endl;
         exit(1);
     }
 }
 
 
-void ClientMessageHandler :: deleteArt(stringstream& ss, int& newsIdent) {
+void ClientMessageHandler :: deleteArt(stringstream& ss, int& newsIdent)
+{
     int artIdent;
-    if(!(ss >> artIdent)){
+    if(!(ss >> artIdent)) {
         cerr << "Error: Could not parse the artIdent" << endl;
         return;
     }
@@ -265,38 +272,39 @@ void ClientMessageHandler :: deleteArt(stringstream& ss, int& newsIdent) {
     connection->write(Protocol::COM_END);
 
     char b;
-    if((b = connection->read()) != Protocol::ANS_DELETE_ART){
+    if((b = connection->read()) != Protocol::ANS_DELETE_ART) {
         cerr << "Malformed message byte: " << hex << b << " in deleteNG" << endl;
         exit(1);
     }
 
     b = connection->read();
-    if(b != Protocol::ANS_NAK && b != Protocol::ANS_ACK){
+    if(b != Protocol::ANS_NAK && b != Protocol::ANS_ACK) {
         cerr << "Malformed message byte: " << hex << b << " in deleteNG" << endl;
         exit(1);
     }
-    
-    if(b == Protocol::ANS_NAK){
+
+    if(b == Protocol::ANS_NAK) {
         b = connection->read();
-        if(b == Protocol::ERR_NG_DOES_NOT_EXIST){
+        if(b == Protocol::ERR_NG_DOES_NOT_EXIST) {
             cerr << "Error: the newsgroup does not exist" << endl;
-        }else if(b == Protocol::ERR_ART_DOES_NOT_EXIST){
+        } else if(b == Protocol::ERR_ART_DOES_NOT_EXIST) {
             cerr << "Error: the article does not exist" << endl;
-        }else{
+        } else {
             cerr << "Malformed message byte: " << hex << b << " in deleteNG" << endl;
             exit(1);
         }
     }
 
-    if((b = connection->read()) != Protocol::ANS_END){
+    if((b = connection->read()) != Protocol::ANS_END) {
         cerr << "Malformed message byte: " << hex << b << " in deleteNG" << endl;
         exit(1);
     }
 }
 
-void ClientMessageHandler :: readArt(stringstream& ss, int& newsIdent) {
+void ClientMessageHandler :: readArt(stringstream& ss, int& newsIdent)
+{
     int artIdent;
-    if(!(ss >> artIdent)){
+    if(!(ss >> artIdent)) {
         cerr << "Error: Could not parse the artIdent" << endl;
         return;
     }
@@ -308,50 +316,50 @@ void ClientMessageHandler :: readArt(stringstream& ss, int& newsIdent) {
     connection->write(Protocol::COM_END);
 
     char b;
-    if((b = connection->read()) != Protocol::ANS_GET_ART){
+    if((b = connection->read()) != Protocol::ANS_GET_ART) {
         cerr << "Malformed message byte: " << hex << b << " in readArt" << endl;
         exit(1);
     }
 
     b = connection->read();
-    if(b != Protocol::ANS_NAK && b != Protocol::ANS_ACK){
+    if(b != Protocol::ANS_NAK && b != Protocol::ANS_ACK) {
         cerr << "Malformed message byte: " << hex << b << " in readArt" << endl;
         exit(1);
     }
-    
-    if(b == Protocol::ANS_NAK){
+
+    if(b == Protocol::ANS_NAK) {
         b = connection->read();
-        if(b == Protocol::ERR_NG_DOES_NOT_EXIST){
+        if(b == Protocol::ERR_NG_DOES_NOT_EXIST) {
             cerr << "Error: the newsgroup does not exist" << endl;
-        }else if(b == Protocol::ERR_ART_DOES_NOT_EXIST){
+        } else if(b == Protocol::ERR_ART_DOES_NOT_EXIST) {
             cerr << "Error: the article does not exist" << endl;
-        }else{
+        } else {
             cerr << "Malformed message byte: " << hex << b << " in readArt" << endl;
             exit(1);
         }
     }
-    
-    if(b == Protocol::ANS_ACK){
-        if((b = connection->read()) != Protocol::PAR_STRING){
+
+    if(b == Protocol::ANS_ACK) {
+        if((b = connection->read()) != Protocol::PAR_STRING) {
             cerr << "Malformed message byte: " << hex << b << " in readArt" << endl;
             exit(1);
         }
         string title = readString();
-        if((b = connection->read()) != Protocol::PAR_STRING){
+        if((b = connection->read()) != Protocol::PAR_STRING) {
             cerr << "Malformed message byte: " << hex << b << " in readArt" << endl;
             exit(1);
         }
         string author = readString();
-        if((b = connection->read()) != Protocol::PAR_STRING){
+        if((b = connection->read()) != Protocol::PAR_STRING) {
             cerr << "Malformed message byte: " << hex << b << " in readArt" << endl;
             exit(1);
         }
         string body = readString();
-        cout << "Title:" << endl << title << endl << "Author:" << endl 
-            << author << endl << "Text:" << endl << hex << body << endl;
+        cout << "Title:" << endl << title << endl << "Author:" << endl
+             << author << endl << "Text:" << endl << hex << body << endl;
     }
 
-    if((b = connection->read()) != Protocol::ANS_END){
+    if((b = connection->read()) != Protocol::ANS_END) {
         cerr << "Malformed message byte: " << hex << b << " in readArt" << endl;
         exit(1);
     }
@@ -360,8 +368,9 @@ void ClientMessageHandler :: readArt(stringstream& ss, int& newsIdent) {
 
 
 
-bool ClientMessageHandler :: openNG(stringstream& ss, int& newsIdent) {
-    if(!(ss >> newsIdent)){
+bool ClientMessageHandler :: openNG(stringstream& ss, int& newsIdent)
+{
+    if(!(ss >> newsIdent)) {
         cerr << "Error: Could not parse the newsIdent" << endl;
         return false;
     }
@@ -369,18 +378,19 @@ bool ClientMessageHandler :: openNG(stringstream& ss, int& newsIdent) {
 }
 
 
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv[])
+{
     if (argc != 3) {
         cerr << "Usage: " << argv[0] << " HOST PORT" << endl;
         exit(1);
     }
-    
+
     Connection* conn = new Connection(argv[1], atoi(argv[2]));
     if (! conn->isConnected()) {
         cerr << "Connection attempt failed" << endl;
         exit(1);
     }
-    
+
     ClientMessageHandler handle(conn);
     cout << "Welcome, enter \"help\" without citations for list of commands" << endl;
     string input;
@@ -395,37 +405,37 @@ int main(int argc, char* argv[]) {
             ss.str(input);
             ss >> command;
 
-            if(command == "list"){
+            if(command == "list") {
                 if(inNewsgroup)
-                   handle.listArt(newsIdent);
+                    handle.listArt(newsIdent);
                 else
-                   handle.listNG();
-            }else if(command == "read"){
+                    handle.listNG();
+            } else if(command == "read") {
                 if(inNewsgroup)
                     handle.readArt(ss,newsIdent);
                 else
                     cerr << "Error: not in a newsgroup " << endl;
-            }else if(command == "create"){
+            } else if(command == "create") {
                 if(inNewsgroup)
-                    handle.createArt(newsIdent);                   
+                    handle.createArt(newsIdent);
                 else
                     handle.createNG();
-            }else if(command == "delete"){
+            } else if(command == "delete") {
                 if(inNewsgroup)
                     handle.deleteArt(ss, newsIdent);
                 else
                     handle.deleteNG(ss);
-            }else if(command == "open"){
+            } else if(command == "open") {
                 if(inNewsgroup)
                     cerr << "Error: Already in newsgroup " << newsIdent << endl;
                 else
                     inNewsgroup = handle.openNG(ss,newsIdent);
-            }else if(command == "close"){
+            } else if(command == "close") {
                 inNewsgroup=false;
-            }else if(command == "exit"){
+            } else if(command == "exit") {
                 delete conn;
                 exit(1);
-            }else if(command == "help"){
+            } else if(command == "help") {
                 cout<< "list                  lists newsgroup or articles" << endl
                     << "open IDENT            open a newsgroup" << endl
                     << "close                 close current newsgroup" << endl
@@ -433,10 +443,10 @@ int main(int argc, char* argv[]) {
                     << "create                create newsgroup" << endl
                     << "delete IDENT          delete newsgroup or article depending on if in a newsgroup or not" << endl
                     << "exit                  exits the client" << endl;
-            }else{
+            } else {
                 cerr << "Error: No such command exists" << endl;
             }
-        }catch (ConnectionClosedException&) {
+        } catch (ConnectionClosedException&) {
             cerr << "Server closed down!" << endl;
             delete conn;
             exit(1);

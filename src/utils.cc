@@ -18,7 +18,7 @@ using namespace client_server;
 using namespace protocol;
 
 MessageHandler::MessageHandler(Connection* connection) :
-	connection(connection) {}
+    connection(connection) {}
 
 unsigned int
 MessageHandler::readNum()
@@ -30,7 +30,7 @@ MessageHandler::readNum()
     for (int i = 3; i >= 0; --i) {
         nc[i] = connection->read();
     }
-    
+
     trace << "Read: " << n << endl;
     return n;
 }
