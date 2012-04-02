@@ -34,6 +34,7 @@ class ClientMessageHandler : public MessageHandler {
         void listArt(int& newsIdent);
         void createArt(int& newsIdent);
         void deleteArt(stringstream&, int& newsIdent);
+        void readArt(stringstream&, int& newsIdent);
 };
 
 ClientMessageHandler::ClientMessageHandler(Connection* connection) :
@@ -293,6 +294,72 @@ void ClientMessageHandler :: deleteArt(stringstream& ss, int& newsIdent) {
     }
 }
 
+void ClientMessageHandler :: readArt(stringstream& ss, int& newsIdent) {
+    int artIdent;
+    if(!(ss >> artIdent)){
+        cerr << "Error: Could not parse the artIdent" << endl;
+        return;
+    }
+    connection->write(Protocol::COM_GET_ART);
+    connection->write(Protocol::PAR_NUM);
+    writeNum(newsIdent);
+    connection->write(Protocol::PAR_NUM);
+    writeNum(artIdent);
+    connection->write(Protocol::COM_END);
+
+    char b;
+    if((b = connection->read()) != Protocol::ANS_GET_ART){
+        cerr << "Malformed message byte: " << b << " in readArt" << endl;
+        exit(1);
+    }
+
+    b = connection->read();
+    if(b != Protocol::ANS_NAK && b != Protocol::ANS_ACK){
+        cerr << "Malformed message byte: " << b << " in readArt" << endl;
+        exit(1);
+    }
+    
+    if(b == Protocol::ANS_NAK){
+        b = connection->read();
+        if(b == Protocol::ERR_NG_DOES_NOT_EXIST){
+            cerr << "Error: the newsgroup does not exist" << endl;
+        }else if(b == Protocol::ERR_ART_DOES_NOT_EXIST){
+            cerr << "Error: the article does not exist" << endl;
+        }else{
+            cerr << "Malformed message byte: " << b << " in readArt" << endl;
+            exit(1);
+        }
+    }
+    
+    if(b == Protocol::ANS_ACK){
+        if((b = connection->read()) != Protocol::PAR_STRING){
+            cerr << "Malformed message byte: " << b << " in readArt" << endl;
+            exit(1);
+        }
+        string title = readString();
+        if((b = connection->read()) != Protocol::PAR_STRING){
+            cerr << "Malformed message byte: " << b << " in readArt" << endl;
+            exit(1);
+        }
+        string author = readString();
+        if((b = connection->read()) != Protocol::PAR_STRING){
+            cerr << "Malformed message byte: " << b << " in readArt" << endl;
+            exit(1);
+        }
+        string body = readString();
+        cout << "Title:" << endl << title << endl << "Author:" << endl 
+            << author << endl << "Text:" << endl << body << endl;
+    }
+
+    if((b = connection->read()) != Protocol::ANS_END){
+        cerr << "Malformed message byte: " << b << " in readArt" << endl;
+        exit(1);
+    }
+
+}
+
+
+
 bool ClientMessageHandler :: openNG(stringstream& ss, int& newsIdent) {
     if(!(ss >> newsIdent)){
         cerr << "Error: Could not parse the newsIdent" << endl;
@@ -315,7 +382,7 @@ int main(int argc, char* argv[]) {
     }
     
     ClientMessageHandler handle(conn);
-
+    cout << "Welcome, enter \"help\" without citations for list of commands" << endl;
     //translate text into number
     string input;
     string command;
@@ -334,6 +401,11 @@ int main(int argc, char* argv[]) {
                    handle.listArt(newsIdent);
                 else
                    handle.listNG();
+            }else if(command == "read"){
+                if(inNewsgroup)
+                    handle.readArt(ss,newsIdent);
+                else
+                    cerr << "Error: not in a newsgroup " << endl;
             }else if(command == "create"){
                 if(inNewsgroup)
                     handle.createArt(newsIdent);                   
@@ -354,6 +426,14 @@ int main(int argc, char* argv[]) {
             }else if(command == "exit"){
                 delete conn;
                 exit(1);
+            }else if(command == "help"){
+                cout<< "list                  lists newsgroup or articles" << endl
+                    << "open [ident]          open a newsgroup" << endl
+                    << "close                 close current newsgroup" << endl
+                    << "read [ident]          prints the article" << endl
+                    << "create                create newsgroup" << endl
+                    << "delete [ident]        delete newsgroup or article depending on if in a newsgroup or not" << endl
+                    << "exit                  exits the client" << endl;
             }else{
                 cerr << "Error: No such command exists" << endl;
             }
