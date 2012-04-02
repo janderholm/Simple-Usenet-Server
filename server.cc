@@ -283,25 +283,30 @@ ServerMessageHandler::deleteNG()
 int
 main(int argc, const char *argv[])
 {
-    if (argc != 2) {
-        cerr << "Usage: " << argv[0] << " PORT" << endl;
+    if (!(argc == 2 || argc == 3)) {
+        cerr << "Usage: " << argv[0] << " PORT [PATH]" << endl;
+        cerr << "Start server on port PORT" << endl;
+        cerr << "If PATH is set use persistant database in path" << endl;
         return 1;
     }
 
     int port;
     istringstream(argv[1]) >> port;
 
+    DatabaseInterface* db;
+    if (argc == 3) {
+        cout << "Starting persistant database in " << argv[2] << endl;
+        db = new DiskDatabase(argv[2]);
+    } else {
+        cout << "Starting nonpersistand database in memory" << endl;
+        db = new InMemoryDatabase();
+    }
+
+
     Server server(port);
     if (!server.isReady()) {
         cerr << "Server initialization error" << endl;
         return 1;
-    }
-
-    DatabaseInterface* db;
-    if (false) {
-        db = new InMemoryDatabase();
-    } else {
-        db = new DiskDatabase("susdb");
     }
 
     char b;
