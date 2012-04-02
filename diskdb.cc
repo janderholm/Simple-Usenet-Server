@@ -81,13 +81,12 @@ class Directory {
         DIR* dirp;
 };
 
-static string dbname = "diskdb";
 
-DiskDatabase::DiskDatabase()
+DiskDatabase::DiskDatabase(const string& dbpath) : dbpath(dbpath)
 {
-    Directory d(dbname);
+    Directory d(dbpath);
     if (!d.exist()) {
-        mkdir(dbname.c_str(), 0755);
+        mkdir(dbpath.c_str(), 0755);
     }
 }
 
@@ -97,12 +96,12 @@ DiskDatabase::getNewsgroups()
     // TODO: paths should atleast be global constants
     
     trace << "getNewsgroups()" << endl;
-    Directory dir(dbname);
+    Directory dir(dbpath);
     vector<Newsgroup> groups;
     trace << "Found: " << endl;
     for(auto it = dir.begin(); it != dir.end(); ++it){
         Newsgroup n;
-        n.name = readFile(dbname + "/" + *it + "/" + "name");
+        n.name = readFile(dbpath + "/" + *it + "/" + "name");
         istringstream(*it) >> n.ident;
         groups.push_back(n);
         trace << n.ident << " --  " << n.name << endl;
@@ -120,7 +119,7 @@ DiskDatabase::createNewsgroup(const string& name)
 {
 
     //TODO error handling
-    Directory dir(dbname);
+    Directory dir(dbpath);
 
     //find the max ident
     //TODO perhaps it is always the first/last
@@ -128,7 +127,7 @@ DiskDatabase::createNewsgroup(const string& name)
     for(auto it = dir.begin(); it != dir.end(); ++it){
         unsigned int ident;
         istringstream(*it) >> ident;
-        if(readFile(dbname + "/" + *it + "/" + "name") == name){
+        if(readFile(dbpath + "/" + *it + "/" + "name") == name){
             return false; //already exist        
         }
         if(ident > maxIdent){
@@ -142,9 +141,9 @@ DiskDatabase::createNewsgroup(const string& name)
     out << maxIdent;
     string ident = out.str();
 
-    mkdir((dbname + "/" + ident).c_str(),0755);
+    mkdir((dbpath + "/" + ident).c_str(),0755);
 
-    ofstream write (dbname + "/" + ident + "/name");
+    ofstream write (dbpath + "/" + ident + "/name");
     write << name;
     write.close();
 
@@ -159,22 +158,22 @@ DiskDatabase::deleteNewsgroup(unsigned int newsIdent)
     out << newsIdent;
     string ident = out.str();
     
-    Directory newsGroups((dbname + "/" + ident));
+    Directory newsGroups((dbpath + "/" + ident));
 
     if (!newsGroups.exist()) {
         return false;
     }
 
     for(auto it = newsGroups.begin(); it != newsGroups.end(); ++it){
-        string artPath(dbname + "/" + ident + "/" + *it);
+        string artPath(dbpath + "/" + ident + "/" + *it);
         remove((artPath + "/body").c_str());
         remove((artPath + "/author").c_str());
         remove((artPath + "/title").c_str());
         rmdir(artPath.c_str());
     }
 
-    remove((dbname + "/" + ident + "/name").c_str());
-    rmdir((dbname + "/" + ident).c_str());
+    remove((dbpath + "/" + ident + "/name").c_str());
+    rmdir((dbpath + "/" + ident).c_str());
     return true;
 }
 
@@ -186,10 +185,10 @@ DiskDatabase::getArticles(unsigned int newsIdent)
     string ident = out.str();
     vector<Article> articles;
 
-    Directory dir((dbname + "/" + ident));
+    Directory dir((dbpath + "/" + ident));
     for(auto it = dir.begin(); it != dir.end(); ++it){
         Article a;
-        string artPath = dbname + "/" + ident + "/" + *it;
+        string artPath = dbpath + "/" + ident + "/" + *it;
         a.title = readFile(artPath + "/title");
         a.body = readFile(artPath + "/body");
         a.author = readFile(artPath + "/author");
@@ -211,7 +210,7 @@ DiskDatabase::createArticle(unsigned int newsIdent, const string& title,
     sid << newsIdent;
     string s_newsIdent = sid.str();
 
-    Directory dir((dbname + "/" + s_newsIdent));
+    Directory dir((dbpath + "/" + s_newsIdent));
 
     // Newsgroup does not exist.
     if (!dir.exist()) {
@@ -234,7 +233,7 @@ DiskDatabase::createArticle(unsigned int newsIdent, const string& title,
     stringstream out;
     out << maxIdent;
     string ident = out.str();
-    string artPath = dbname + "/" + s_newsIdent + "/" + ident;
+    string artPath = dbpath + "/" + s_newsIdent + "/" + ident;
 
     mkdir(artPath.c_str(),0755);
 
@@ -261,7 +260,7 @@ DiskDatabase::deleteArticle(unsigned int newsIdent, unsigned int artIdent)
     out << artIdent;
     string s_artIdent = out.str();
 
-    string artPath = dbname + "/" + s_newsIdent + "/" + s_artIdent;
+    string artPath = dbpath + "/" + s_newsIdent + "/" + s_artIdent;
 
     Directory* d = new Directory(artPath);
     // Newsgroup does not exist.
@@ -287,7 +286,7 @@ DiskDatabase::existsNewsgroup(unsigned int newsIdent)
     out << newsIdent;
     string s_newsIdent = out.str();
     
-    Directory d(dbname + "/" + s_newsIdent);
+    Directory d(dbpath + "/" + s_newsIdent);
     if (!d.exist()) {
         return false;
     } else {

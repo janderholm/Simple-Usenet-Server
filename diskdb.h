@@ -9,7 +9,7 @@ namespace sus
     class DiskDatabase : public DatabaseInterface
     {
         public:
-            DiskDatabase();
+            DiskDatabase(const string& path);
             vector<Newsgroup> getNewsgroups();
 
             bool createNewsgroup(const string& name);
@@ -26,6 +26,8 @@ namespace sus
             bool existsNewsgroup(unsigned int newsIdent);
 
             string readFile(string file);
+        private:
+            string dbpath;
     };
 }
 

@@ -301,7 +301,7 @@ main(int argc, const char *argv[])
     if (false) {
         db = new InMemoryDatabase();
     } else {
-        db = new DiskDatabase();
+        db = new DiskDatabase("susdb");
     }
 
     char b;
