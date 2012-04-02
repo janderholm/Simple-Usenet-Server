@@ -1,6 +1,28 @@
-This project aims at creating a simple usenet server in C++.
+This project aims at creating a simple usenet like server in C++.
 
-Database:
+
+BUILD
+=====
+
+Running make all will result in three binaries in the bin/ dir.
+Some things from c++11 is required, most notably the auto keyword and
+lambdas. GCC 4.5+ should be able to build it just fine.
+
+
+Usage
+=====
+
+Usage: ./client HOST PORT
+
+Usage: ./serverdisk PORT PATH
+Start server on port PORT with database on PATH
+
+Usage: ./servermem PORT
+Start server on port PORT
+
+
+Database
+========
 
 The database structure:
 .
@@ -24,3 +46,4 @@ The database structure:
     │   ├── body
     │   └── title
     └── name
+
