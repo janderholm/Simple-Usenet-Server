@@ -262,6 +262,7 @@ ServerMessageHandler::deleteNG()
         n = readNum();
     } else {
         cerr << "Malformed message byte: " << hex << b << "in deleteNG" << endl;
+        return;
     }
 
     if ((b = connection->read()) == Protocol::COM_END) {
@@ -356,7 +357,7 @@ main(int argc, const char *argv[])
                 server.deregisterConnection(connection);
                 delete connection;
                 cout << "Client closed connection" << endl;
-         break;
+                //break;
             }
         } else {
             server.registerConnection(new Connection);

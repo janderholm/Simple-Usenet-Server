@@ -1,22 +1,23 @@
+CXX       = g++
+CXXFLAGS  = -std=c++0x -pipe -O2 -Wall -W -pedantic-errors
+CXXFLAGS += -Wmissing-braces -Wparentheses
+OBJS      = *.o client server disktest dbtest
 
-all: server
+all: server client
 
 clean:
-	$(RM) server
+	$(RM) server $(OBJS) 
 
 server server.cc utils.cc inmemorydb.cc:
-	g++ -g -Wall --std=c++0x server.cc utils.cc inmemorydb.cc diskdb.cc clientserver/*.cc -o server
-
-disk:
-	g++ -Wall --std=c++0x server.cc diskdb.cc clientserver/*.cc -o server
+	$(CXX) $(CXXFLAGS) server.cc utils.cc inmemorydb.cc diskdb.cc clientserver/*.cc -o server
 
 disktest:
-	g++ -Wall --std=c++0x disktest.cc diskdb.cc -o disktest
+	$(CXX) $(CXXFLAGS) disktest.cc diskdb.cc -o disktest
 
-client:
-	g++ -Wall --std=c++0x client.cc utils.cc clientserver/*.cc -o client
+client client.cc utils.cc:
+	$(CXX) $(CXXFLAGS) client.cc utils.cc clientserver/*.cc -o client
 
 dbtest:
-	g++ -Wall --std=c++0x dbtest.cc inmemorydb.cc -o dbtest
+	$(CXX) $(CXXFLAGS) dbtest.cc inmemorydb.cc -o dbtest
 	./dbtest && echo "SUCCESS!" || echo "FAIL!"
-	@rm dbtest
+	@$(RM) dbtest
